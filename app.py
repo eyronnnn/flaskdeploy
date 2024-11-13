@@ -4,10 +4,10 @@ from inference_sdk import InferenceHTTPClient
 
 app = Flask(__name__)
 
-# Initialize Roboflow Inference Client
+# Initialize Roboflow Inference Client using environment variable
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",
-    api_key="KLuysgojSyV9rMNLr20y"
+    api_key=os.getenv("API_KEY")  # Fetch API key from environment variable
 )
 
 # Ensure the 'uploads' directory exists
