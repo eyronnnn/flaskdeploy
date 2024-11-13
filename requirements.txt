@@ -9,3 +9,4 @@ markupsafe==2.1.5  # via jinja2
 requests==2.32.3  # for HTTP requests
 urllib3==1.26.19  # via requests
 werkzeug==3.0.3  # via flask
+inference_sdk==0.26.0  # for inference client
