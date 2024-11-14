@@ -135,6 +135,72 @@
         position: relative;
         height: 12rem; /* Adjust the height of the pie chart */
     }
+
+
+    .floating-shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.2;
+        filter: blur(20px);
+        animation: float-animation 20s linear infinite, rotation-animation 20s linear infinite;
+        }
+
+        /* Keyframes for floating effect */
+        @keyframes float-animation {
+        0%, 100% {
+            transform: translateY(0%) translateX(0%);
+        }
+        50% {
+            transform: translateY(100%) translateX(100%);
+        }
+        }
+
+        /* Keyframes for rotation */
+        @keyframes rotation-animation {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+        }
+
+        /* Customizable shapes */
+        .shape-1 {
+        background-color: rgba(255, 0, 0, 0.5); /* Red shape */
+        width: 100px;
+        height: 100px;
+        top: 10%;
+        left: 20%;
+        animation-delay: 0s;
+        }
+
+        .shape-2 {
+        background-color: rgba(0, 255, 0, 0.5); /* Green shape */
+        width: 120px;
+        height: 120px;
+        top: 40%;
+        left: 60%;
+        animation-delay: 4s;
+        }
+
+        .shape-3 {
+        background-color: rgba(0, 0, 255, 0.5); /* Blue shape */
+        width: 80px;
+        height: 80px;
+        top: 70%;
+        left: 30%;
+        animation-delay: 2s;
+        }
+
+        .shape-4 {
+        background-color: rgba(255, 255, 0, 0.5); /* Yellow shape */
+        width: 90px;
+        height: 90px;
+        top: 20%;
+        left: 80%;
+        animation-delay: 6s;
+        }
 </style>
 
 
@@ -142,10 +208,34 @@
 </head>
 <body>
 
+
+    <div class="floating-shape shape-1"></div>
+  <div class="floating-shape shape-2"></div>
+  <div class="floating-shape shape-3"></div>
+  <div class="floating-shape shape-4"></div>
+
+
 <div class="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
     <!-- Center Column: Input Forms (Moved to the Left) -->
-    <div class="bg-[#1E1E1E] shadow-box rounded-3xl p-6">
-        <h2 class="text-center text-4xl font-bold mb-4">Input Forms</h2>
+        <div 
+            class="bg-[#1E1E1E] mt-28 shadow-box rounded-3xl p-6 transition-all duration-500"
+            style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0);"
+            onmouseover="this.style.boxShadow='0 4px 30px #c1e7ec';"
+            onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';">
+
+        <h2 class="text-center mt-5 text-5xl font-bold mb-2 flex items-center justify-center">
+            Input Forms
+            <!-- Fish Outline Icon --> 
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 ml-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12c0 2.5 2 4.5 4.5 4.5 1.28 0 2.432-.453 3.305-1.185.31.075.636.115.975.115 1.935 0 3.5-1.57 3.5-3.5s-1.565-3.5-3.5-3.5c-.34 0-.665.04-.975.115C9.932 7.953 8.78 7.5 7.5 7.5 5 7.5 3 9.5 3 12zm0 0s4.5 2 9 2 9-2 9-2m-4 5.5h1.5M17 7.5h1.5" />
+            </svg>
+        </h2>
+
+
+        <p class="text-center text-md mt-5 text-white mb-10">
+            Fill out the details below to analyze fish freshness and batch processing.
+        </p>
+
         <form>
             <div class="mb-4">
                 <label for="fishName" class="block text-sm font-medium">Fish Name</label>
@@ -160,7 +250,11 @@
     </div>
 
     <!-- Left Column: Fish Freshness Detector (Moved to the Center) -->
-    <div class="bg-[#1E1E1E] mt-10 shadow-box rounded-3xl p-6 hover:bg-[#2B2B2B] transition-all duration-500">
+    <div 
+        class="bg-[#1E1E1E] mt-10 shadow-4xl rounded-3xl p-6 hover:bg-[#2B2B2B] transition-all duration-500"
+        style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0);"
+        onmouseover="this.style.boxShadow='0 4px 40px #c1e7ec';"
+        onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';">
     <h1 class="text-center text-5xl font-bold mb-10 mt-10 pulse-effect" 
         style="color: #FFFFFF; text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.9);">
         AquaGrade
@@ -243,7 +337,7 @@
 
         <!-- Capture Image Section -->
         <div id="captureSection" class="hidden">
-            <label class="block text-sm font-medium text-gray-700 mb-5">
+            <label class="block text-sm font-medium text-white mt-5 mb-5">
                 Capture an image
                 <span class="info-icon" data-info="Use this feature to capture an image directly from your webcam. Ensure camera permissions are granted.">i</span>
             </label>
@@ -274,9 +368,33 @@
 
         <!-- Right Column: Charts -->
     <div class="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+        <!-- Existing Content -->
+
         <!-- Right Column: Charts -->
-        <div class="mt-20 bg-gradient-to-br from-[#333333] to-[#444444] shadow-box rounded-3xl p-6 md:col-span-3">
+        <div 
+            class="mt-20 bg-gradient-to-br from-[#333333] to-[#444444] shadow-box rounded-3xl p-6 md:col-span-3 relative-position transition-all duration-500"
+            style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0);"
+            onmouseover="this.style.boxShadow='0 4px 30px #c1e7ec';"
+            onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';">
+
             <h2 class="text-center mt-10 text-5xl font-bold mb-4">Charts</h2>
+
+            <!-- Animated Counter Div (Positioned at Top-Left) -->
+        <div
+            class="stats shadow-lg w-24 h-14 content-center absolute top-40 rounded-3xl bg-[#333333] text-white font-bold font-poppins transition-transform duration-500 ease-in-out hover:scale-105 scale-75"
+            style="right: 79px; box-shadow: 0 3px 15px rgba(255, 0, 0, 0.8);"
+            onmouseover="this.style.boxShadow='0 4px 18px rgba(255, 0, 0, 1)';"
+            onmouseout="this.style.boxShadow='0 3px 15px rgba(255, 0, 0, 0.8)';">
+            
+            <div class="stat text-left flex items-center justify-between px-4">
+                <div class="stat-value text-sm mr-2 text-white" id="count">0</div>
+                <!-- Eye Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+            </div>
+        </div>
 
             <!-- Moving Pie Chart -->
             <div class="mt-20 pie-chart-container">
@@ -291,19 +409,39 @@
     </div>
 
     <script>
-        // Pie Chart Configuration
+        // Counter Animation Script
+        document.addEventListener("DOMContentLoaded", function () {
+            const targetNumber = 89400;
+            const speed = 50;
+
+            const counter = document.getElementById("count");
+            let count = 0;
+
+            const updateCount = () => {
+                const increment = Math.ceil(targetNumber / speed);
+                count += increment;
+
+                if (count < targetNumber) {
+                    counter.textContent = count.toLocaleString();
+                    setTimeout(updateCount, 30);
+                } else {
+                    counter.textContent = targetNumber.toLocaleString();
+                }
+            };
+
+            updateCount();
+        });
+
+        // Chart.js Configuration (Remaining Existing Chart Logic)
         const ctxPie = document.getElementById('pieChart').getContext('2d');
         const pieChart = new Chart(ctxPie, {
             type: 'doughnut',
             data: {
-                labels: ['Fresh', 'Not Fresh'], // Pie chart labels
+                labels: ['Fresh', 'Not Fresh'],
                 datasets: [{
                     label: 'Freshness Distribution',
-                    data: [70, 30], // Initial data
-                    backgroundColor: [
-                        '#4CAF50', // Green for Fresh
-                        ctxPie.createLinearGradient(0, 0, 0, 400) // Gradient for Not Fresh
-                    ],
+                    data: [70, 30],
+                    backgroundColor: ['#4CAF50', ctxPie.createLinearGradient(0, 0, 0, 400)],
                 }]
             },
             options: {
@@ -315,14 +453,6 @@
             }
         });
 
-        // Add gradient color to pie chart's "Not Fresh"
-        const gradientPie = ctxPie.createLinearGradient(0, 0, 0, 400);
-        gradientPie.addColorStop(0, '#FF0000');
-        gradientPie.addColorStop(1, '#FFFFFF');
-        pieChart.data.datasets[0].backgroundColor[1] = gradientPie; // Apply gradient for Not Fresh
-        pieChart.update();
-
-        // Line Chart Configuration
         const ctxLine = document.getElementById('lineChart').getContext('2d');
         const gradientLine = ctxLine.createLinearGradient(0, 0, 400, 0);
         gradientLine.addColorStop(0, '#FF0000');
@@ -331,12 +461,12 @@
         const lineChart = new Chart(ctxLine, {
             type: 'line',
             data: {
-                labels: ['1s', '2s', '3s', '4s', '5s', '6s', '7s'], 
+                labels: ['1s', '2s', '3s', '4s', '5s', '6s', '7s'],
                 datasets: [{
                     label: 'Freshness Over Time',
-                    data: [10, 12, 14, 18, 22, 20, 25], // Example initial data
+                    data: [10, 12, 14, 18, 22, 20, 25],
                     borderColor: gradientLine,
-                    backgroundColor: 'rgba(255, 0, 0, 0.2)', // Light red for gradient area
+                    backgroundColor: 'rgba(255, 0, 0, 0.2)',
                     tension: 0.4,
                 }]
             },
@@ -353,27 +483,24 @@
             }
         });
 
-        // Function to simulate real-time data updates
-        function updateCharts() {
+        // Simulate updates every 3 seconds
+        setInterval(() => {
             const newLabel = `${lineChart.data.labels.length + 1}s`;
             const newData = Math.floor(Math.random() * 50);
 
-            // Update Line Chart
             lineChart.data.labels.push(newLabel);
             lineChart.data.datasets[0].data.push(newData);
             lineChart.update();
 
-            // Simulate Pie Chart Updates
             const freshValue = Math.floor(Math.random() * 100);
             const notFreshValue = 100 - freshValue;
             pieChart.data.datasets[0].data = [freshValue, notFreshValue];
             pieChart.update();
-        }
-
-        // Simulate updates every 3 seconds
-        setInterval(updateCharts, 3000);
+        }, 3000);
     </script>
     </div>
+
+   
 
     <script>
         // Original JavaScript logic provided
