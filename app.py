@@ -8,7 +8,7 @@ app = Flask(__name__)
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",
     # api_key=os.getenv("API_KEY")  # Fetch API key from environment variable
-    api_key="KLuysgojSyV9rMNLr20y"
+    api_key="KLuysgojSyV9rMNLr20y"  # Comment this LOC to enable Production Mode.
 )
 
 # Ensure the 'uploads' directory exists
