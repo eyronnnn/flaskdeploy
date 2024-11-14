@@ -7,7 +7,8 @@ app = Flask(__name__)
 # Initialize Roboflow Inference Client using environment variable
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",
-    api_key=os.getenv("API_KEY")  # Fetch API key from environment variable
+    # api_key=os.getenv("API_KEY")  # Fetch API key from environment variable
+    api_key="KLuysgojSyV9rMNLr20y"
 )
 
 # Ensure the 'uploads' directory exists
