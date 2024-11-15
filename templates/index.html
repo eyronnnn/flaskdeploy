@@ -27,13 +27,7 @@
     />
     <style>
       #chevronIcon {
-        font-size: 18px; /* Adjust size */
-        margin-left: 1rem;
-      }
-
-      /* Glowing effect on hover */
-      #chevronIcon:hover {
-        box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.3); /* White glow effect */
+        font-size: 24px; /* Adjust size */
       }
 
       #inferenceResult {
@@ -903,8 +897,7 @@
             <div id="toggleResult" class="mt-2 cursor-pointer">
               <i
                 id="chevronIcon"
-                class="fa fa-chevron-down fa-xs transition-transform duration-300"
-                aria-hidden="true"
+                class="fas fa-chevron-down transition-transform duration-300"
               ></i>
             </div>
           </div>
@@ -1044,6 +1037,20 @@
         <!-- Quality Legend -->
         <h2 class="mt-12 mb-5 font-semibold">Quality Legend:</h2>
         <div id="qualityLegend" class="legend-container font-semibold"></div>
+
+        <style>
+          #avgInferenceTime {
+            margin-top: 100rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        </style>
+
+        <div id="avgInferenceTime" class="avgInferenceTime">
+          <h2 class="inferenceTimeData">Average Inference Time : 0.03s.</h2>
+        </div> <!-- This will display the average inference time -->
       </div>
 
       <!-- Right Column: Charts -->
@@ -1710,6 +1717,24 @@
 
               displayImageWithBoundingBoxes(imageUrl, predictionData);
               generateQualityLegend(predictionData);
+
+              // Calculate average inference time
+              let totalInferenceTime = 0;
+              let totalPredictions = predictionData.length;
+
+              predictionData.forEach((prediction) => {
+                totalInferenceTime += prediction.time; // Assuming each prediction has a "time" field in ms
+              });
+
+              let avgInferenceTime =
+                totalPredictions > 0
+                  ? totalInferenceTime / totalPredictions
+                  : 0;
+
+              // Display the average inference time on the frontend
+              avgInferenceTimeDisplay.textContent = `Average Inference Time: ${avgInferenceTime.toFixed(
+                2
+              )} ms`;
 
               // Hide progress bar after completion
               setTimeout(() => {
