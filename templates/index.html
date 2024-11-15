@@ -20,6 +20,42 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+      .quality-legend {
+        background-color: #8b0000; /* Dark red */
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 100%;
+        font-family: Arial, sans-serif;
+      }
+
+      .quality-legend h2 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+      }
+
+      .quality-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .quality-label {
+        padding: 5px 10px;
+        border-radius: 15px;
+        color: white;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .quality-count {
+        background-color: #ffffff;
+        color: #000;
+        font-weight: bold;
+        padding: 3px 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
       #imageWrapper canvas {
         max-width: 100%; /* Ensure canvas does not overflow */
         height: auto; /* Maintain aspect ratio */
@@ -435,7 +471,7 @@
           </div>
           <button
             type="submit"
-            class="w-full py-2 px-4 rounded-2xl hover:shadow-lg"
+            class="w-full py-2 px-4 rounded-2xl hover:shadow-lg mb-10"
             style="background: linear-gradient(to right, #8b0000, #b22222)"
           >
             Upload Image
@@ -513,6 +549,11 @@
             id="resultData"
             class="p-4 rounded-lg overflow-auto text-sm shadow-lg"
           ></pre>
+        </div>
+
+        <!-- Quality Legend -->
+        <div class="quality-legend mt-10 font-bold">
+          <h2>Quality Legend:</h2>
         </div>
       </div>
 
@@ -824,6 +865,31 @@
       const baseColor = "#FF0000"; // Base color (red)
       const classShades = {}; // Store shades for each class
 
+      // Function to filter and format the label dynamically
+      function filterLabel(rawLabel, confidence) {
+        const confidencePercentage = (confidence * 100).toFixed(1); // Format confidence as percentage
+
+        let processedLabel = rawLabel.replaceAll(" ", "");
+
+        // Split the raw label into parts by " - "
+        const labelParts = processedLabel.split("-");
+
+        // Extract the first and last parts, ignoring the middle (numeric) part
+        let classLabel = labelParts[0]; // e.g., "TILAPIA", "SKIN", "EYE"
+        let qualityLabel = "";
+
+        if (labelParts.length > 2) {
+          // If 3 parts, extract class and quality, ignore the middle numeric part
+          qualityLabel = labelParts[2].replace("-", ""); // e.g., "Acceptable"
+        } else if (labelParts.length === 2) {
+          // If 2 parts, extract class and quality
+          qualityLabel = labelParts[1].replace("-", ""); // e.g., "Excellent"
+        }
+
+        // Return formatted string with confidence
+        return `${classLabel} (${confidencePercentage}%)`;
+      }
+
       function displayImageWithBoundingBoxes(
         imageUrl,
         predictions,
@@ -867,34 +933,41 @@
             ctx.lineWidth = 3;
             ctx.strokeRect(x - width / 2, y - height / 2, width, height);
 
-            // Decide whether to place the label on the top or side
-            const text = `${label} (${(confidence * 100).toFixed(1)}%)`;
+            const text = filterLabel(label, confidence);
+
             ctx.font = "bold 14px Arial";
             const textWidth = ctx.measureText(text).width;
             const textHeight = 12; // Approximate text height
             const isVerticalBox = height > width;
 
             if (isVerticalBox) {
-              // Place the label on the left side of the box
-              ctx.save();
-              ctx.translate(x - width / 2, y + height / 2); // Move to the left of the box
-              ctx.rotate(-Math.PI / 2); // Rotate the label vertically to fit left
+              // Place the label horizontally on the left side of the box, aligned to the bottom-left corner
               ctx.fillStyle = shade; // Background color
-              ctx.fillRect(0, -textHeight + 10 / 2, textWidth + 6, textHeight + 6); // 
+              ctx.fillRect(
+                x - width / 2 - 2, // Move label left, next to the bounding box
+                y - height / 2 - 16, // Align to bottom-left corner
+                textWidth + 6,
+                textHeight + 4
+              );
+
               ctx.fillStyle = textColor; // Text color
-              ctx.fillText(text, 2, textHeight / 2);    // padding of text
-              ctx.restore();
+              ctx.fillText(
+                text,
+                x - width / 2 - 2, // Align the text inside the background rectangle
+                y - height / 2 - 2.5 // Adjust to center text vertically
+              );
             } else {
-              // Place the label on top of the box (unchanged)
+              // For horizontal label placement (unchanged)
               ctx.fillStyle = shade;
               ctx.fillRect(
                 x - width / 2,
                 y - height / 2 - textHeight - 4,
-                textWidth + 6,
+                textWidth + 2,
                 textHeight + 4
               );
+
               ctx.fillStyle = textColor;
-              ctx.fillText(text, x - width / 2 + 3, y - height / 2 - 8);
+              ctx.fillText(text, x - width / 2, y - height / 1.85);
             }
           });
 
