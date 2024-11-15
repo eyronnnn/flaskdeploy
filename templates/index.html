@@ -25,42 +25,28 @@
         margin-bottom: 1.5rem;
       }
 
-      .quality-legend {
-        background-color: #8b0000; /* Dark red */
-        color: white;
-        padding: 20px;
-        border-radius: 0.5rem;
-        width: 100%;
-        font-family: Arial, sans-serif;
+      .legend-container {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
       }
 
-      .quality-legend h2 {
-        margin: 0 0 10px 0;
-        font-size: 18px;
-      }
-
-      .quality-item {
+      .legend-item {
         display: flex;
         align-items: center;
-        margin-bottom: 10px;
-      }
-
-      .quality-label {
-        padding: 5px 10px;
-        border-radius: 15px;
+        gap: 10px;
+        font-family: "Arial", sans-serif;
+        font-size: 14px;
         color: white;
-        font-weight: bold;
-        margin-right: 10px;
       }
 
-      .quality-count {
-        background-color: #ffffff;
-        color: #000;
-        font-weight: bold;
-        padding: 3px 8px;
-        border-radius: 50%;
-        display: inline-block;
+      .color-box {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 1px solid white; /* Optional border for better visibility */
       }
+
       #imageWrapper canvas {
         max-width: 100%; /* Ensure canvas does not overflow */
         height: auto; /* Maintain aspect ratio */
@@ -71,6 +57,40 @@
         max-width: 640px; /* Constrain width of resultDiv for consistency */
         margin: 0 auto; /* Center it horizontally */
       }
+
+      #resultData {
+        max-height: 300px;
+        max-width: 100%; /* Or a fixed width like 500px */
+        overflow: hidden; /* Initially hide both scrollbars */
+        scrollbar-width: thin; /* Firefox: thin scrollbar */
+        scrollbar-color: rgba(136, 136, 136, 0.5) #f0f0f0; /* Firefox: semi-transparent thumb and track */
+      }
+
+      /* WebKit-based browsers like Brave, Chrome, Edge */
+      #resultData::-webkit-scrollbar {
+        width: 6px; /* Slim vertical scrollbar */
+        height: 6px; /* Slim horizontal scrollbar */
+      }
+
+      #resultData::-webkit-scrollbar-track {
+        background: #f0f0f0; /* Light background for track */
+        border-radius: 10rem; /* Optional: Rounded corners for track */
+      }
+
+      #resultData::-webkit-scrollbar-thumb {
+        background: rgba(136, 136, 136, 0.6); /* Semi-transparent thumb */
+        border-radius: 10rem; /* Rounded corners for the thumb */
+      }
+
+      #resultData::-webkit-scrollbar-thumb:hover {
+        background: rgba(
+          85,
+          85,
+          85,
+          0.8
+        ); /* Slightly darker and less transparent on hover */
+      }
+
       #imageWrapper {
         display: flex;
         justify-content: center; /* Center the canvas within imageWrapper */
@@ -554,12 +574,13 @@
           <h2 class="pred-data text-lg font-semibold">Prediction Data:</h2>
           <pre
             id="resultData"
-            class="p-4 rounded-lg overflow-auto text-sm shadow-lg"
+            class="p-4 rounded-lg text-sm shadow-lg"
+            style="max-height: 125px; overflow-y: auto; overflow-x: auto"
           ></pre>
         </div>
 
         <!-- Quality Legend -->
-        <div class="quality-legend mt-10 font-semibold">
+        <div id="qualityLegend" class="legend-container mt-10 font-semibold">
           <h2>Quality Legend:</h2>
         </div>
       </div>
@@ -742,6 +763,10 @@
 
       let streaming = false;
 
+      document.addEventListener("DOMContentLoaded", () => {
+        // default state of the site
+      });
+
       //   START OF HELPER FUNCTIONS ZONE
       function generateShade(baseColor, factor) {
         const hexToRgb = (hex) => {
@@ -777,6 +802,50 @@
 
       const baseColor = "#FF0000"; // Base color (red)
       const classShades = {}; // Store shades for each class
+
+      function generateQualityLegend(predictions) {
+        const legendContainer = document.getElementById("qualityLegend");
+
+        if (!legendContainer) {
+          console.error("Element with ID 'qualityLegend' not found.");
+          return;
+        }
+
+        legendContainer.innerHTML = ""; // Clear previous legend content
+
+        const labelCounts = {};
+
+        predictions.forEach((prediction) => {
+          const label = prediction.class;
+          labelCounts[label] = (labelCounts[label] || 0) + 1;
+
+          if (!classShades[label]) {
+            const index = Object.keys(classShades).length;
+            const shadeFactor = 0.6 + index * 0.1;
+            classShades[label] = generateShade(baseColor, shadeFactor);
+          }
+        });
+
+        Object.keys(labelCounts).forEach((label) => {
+          const count = labelCounts[label];
+          const shade = classShades[label];
+
+          const legendItem = document.createElement("div");
+          legendItem.classList.add("legend-item");
+
+          const colorBox = document.createElement("div");
+          colorBox.style.backgroundColor = shade;
+          colorBox.classList.add("color-box");
+
+          const labelText = document.createElement("span");
+          labelText.innerText = `${label} (${count})`;
+
+          legendItem.appendChild(colorBox);
+          legendItem.appendChild(labelText);
+
+          legendContainer.appendChild(legendItem);
+        });
+      }
 
       // Function to filter and format the label dynamically
       function filterLabel(rawLabel, confidence) {
@@ -911,7 +980,7 @@
           webcam.classList.remove("hidden");
           capture.classList.remove("hidden");
 
-        //   displayImageWithBoundingBoxes(imageUrl, data.predictions);
+          //   displayImageWithBoundingBoxes(imageUrl, predictionData);
         } catch (error) {
           console.error("Webcam access error:", error);
           alert(
@@ -962,6 +1031,24 @@
       }
       // END OF HELPER FUNCTIONS ZONE
 
+      // Show both scrollbars when user hovers
+      resultData.addEventListener("mouseenter", () => {
+        resultData.style.overflowY = "scroll"; // Enable vertical scrollbar
+        resultData.style.overflowX = "scroll"; // Enable horizontal scrollbar
+      });
+
+      // Hide both scrollbars when the mouse leaves
+      resultData.addEventListener("mouseleave", () => {
+        resultData.style.overflowY = "hidden"; // Hide vertical scrollbar
+        resultData.style.overflowX = "hidden"; // Hide horizontal scrollbar
+      });
+
+      // Ensure scrollbars remain visible while actively scrolling
+      resultData.addEventListener("scroll", () => {
+        resultData.style.overflowY = "scroll";
+        resultData.style.overflowX = "scroll";
+      });
+
       // Tab Switching
       const allTabs = [uploadTab, captureTab, batchTab, videoTab];
       const sections = [uploadForm, captureSection, batchForm, videoSection];
@@ -1006,10 +1093,12 @@
             resultData.textContent = JSON.stringify(data, null, 2);
             resultDiv.classList.remove("hidden");
 
+            let predictionData = data.predictions;
             const file = formData.get("file");
             const imageUrl = URL.createObjectURL(file);
 
-            displayImageWithBoundingBoxes(imageUrl, data.predictions);
+            displayImageWithBoundingBoxes(imageUrl, predictionData);
+            generateQualityLegend(predictionData); // Update legend dynamically
           } catch (error) {
             console.error("Error uploading snapshot:", error);
             alert("Snapshot upload failed.");
@@ -1036,10 +1125,12 @@
           resultData.textContent = JSON.stringify(data, null, 2);
           resultDiv.classList.remove("hidden");
 
+          let predictionData = data.predictions;
           const file = formData.get("file");
           const imageUrl = URL.createObjectURL(file);
 
-          displayImageWithBoundingBoxes(imageUrl, data.predictions);
+          displayImageWithBoundingBoxes(imageUrl, predictionData);
+          generateQualityLegend(predictionData); // Update legend dynamically
         } catch (error) {
           console.error("Error:", error);
         }
