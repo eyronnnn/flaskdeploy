@@ -742,101 +742,6 @@
 
       let streaming = false;
 
-      // Tab Switching
-      const allTabs = [uploadTab, captureTab, batchTab, videoTab];
-      const sections = [uploadForm, captureSection, batchForm, videoSection];
-
-      allTabs.forEach((tab, index) => {
-        tab.addEventListener("click", () => {
-          sections.forEach((section, i) => {
-            if (index === i) {
-              section.classList.remove("hidden");
-              allTabs[i].classList.add("active");
-            } else {
-              section.classList.add("hidden");
-              allTabs[i].classList.remove("active");
-            }
-          });
-          resultDiv.classList.add("hidden"); // Hide result when switching tabs
-        });
-      });
-
-      // Start Webcam
-      startWebcam.addEventListener("click", async () => {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-          webcam.srcObject = stream;
-          webcam.classList.remove("hidden");
-          capture.classList.remove("hidden");
-        } catch (error) {
-          console.error("Webcam access error:", error);
-          alert(
-            "Failed to access the camera. Please allow permissions and try again."
-          );
-        }
-      });
-
-      // Capture Image
-      capture.addEventListener("click", () => {
-        const context = snapshot.getContext("2d");
-        snapshot.width = webcam.videoWidth;
-        snapshot.height = webcam.videoHeight;
-        context.drawImage(webcam, 0, 0, snapshot.width, snapshot.height);
-
-        snapshot.toBlob(async (blob) => {
-          const formData = new FormData();
-          formData.append("file", blob, "snapshot.jpg");
-
-          try {
-            const response = await fetch("/upload-single-image", {
-              method: "POST",
-              body: formData,
-            });
-
-            if (!response.ok) {
-              throw new Error("Upload failed.");
-            }
-
-            const data = await response.json();
-            resultData.textContent = JSON.stringify(data, null, 2);
-            resultDiv.classList.remove("hidden");
-          } catch (error) {
-            console.error("Error uploading snapshot:", error);
-            alert("Snapshot upload failed.");
-          }
-        }, "image/jpeg");
-      });
-
-      uploadForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const formData = new FormData(uploadForm);
-        let imageWrapper = document.getElementById("imageWrapper");
-
-        try {
-          const response = await fetch("/upload-single-image", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to upload image.");
-          }
-
-          const data = await response.json();
-          resultData.textContent = JSON.stringify(data, null, 2);
-          resultDiv.classList.remove("hidden");
-
-          const file = formData.get("file");
-          const imageUrl = URL.createObjectURL(file);
-
-          displayImageWithBoundingBoxes(imageUrl, data.predictions);
-        } catch (error) {
-          console.error("Error:", error);
-        }
-      });
-
       function generateShade(baseColor, factor) {
         const hexToRgb = (hex) => {
           let bigint = parseInt(hex.slice(1), 16);
@@ -994,6 +899,110 @@
 
         img.src = imageUrl;
       }
+      
+      // Tab Switching
+      const allTabs = [uploadTab, captureTab, batchTab, videoTab];
+      const sections = [uploadForm, captureSection, batchForm, videoSection];
+
+      allTabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => {
+          sections.forEach((section, i) => {
+            if (index === i) {
+              section.classList.remove("hidden");
+              allTabs[i].classList.add("active");
+            } else {
+              section.classList.add("hidden");
+              allTabs[i].classList.remove("active");
+            }
+          });
+          resultDiv.classList.add("hidden"); // Hide result when switching tabs
+        });
+      });
+
+      // Start Webcam
+      startWebcam.addEventListener("click", async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          webcam.srcObject = stream;
+          webcam.classList.remove("hidden");
+          capture.classList.remove("hidden");
+
+          displayImageWithBoundingBoxes(imageUrl, data.predictions);
+        } catch (error) {
+          console.error("Webcam access error:", error);
+          alert(
+            "Failed to access the camera. Please allow permissions and try again."
+          );
+        }
+      });
+
+      // Capture Image
+      capture.addEventListener("click", () => {
+        const context = snapshot.getContext("2d");
+        snapshot.width = webcam.videoWidth;
+        snapshot.height = webcam.videoHeight;
+        context.drawImage(webcam, 0, 0, snapshot.width, snapshot.height);
+
+        snapshot.toBlob(async (blob) => {
+          const formData = new FormData();
+          formData.append("file", blob, "snapshot.jpg");
+
+          try {
+            const response = await fetch("/upload-single-image", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error("Upload failed.");
+            }
+
+            const data = await response.json();
+            resultData.textContent = JSON.stringify(data, null, 2);
+            resultDiv.classList.remove("hidden");
+
+            const file = formData.get("file");
+            const imageUrl = URL.createObjectURL(file);
+
+            displayImageWithBoundingBoxes(imageUrl, data.predictions);
+
+          } catch (error) {
+            console.error("Error uploading snapshot:", error);
+            alert("Snapshot upload failed.");
+          }
+        }, "image/jpeg");
+      });
+
+      uploadForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(uploadForm);
+        let imageWrapper = document.getElementById("imageWrapper");
+
+        try {
+          const response = await fetch("/upload-single-image", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to upload image.");
+          }
+
+          const data = await response.json();
+          resultData.textContent = JSON.stringify(data, null, 2);
+          resultDiv.classList.remove("hidden");
+
+          const file = formData.get("file");
+          const imageUrl = URL.createObjectURL(file);
+
+          displayImageWithBoundingBoxes(imageUrl, data.predictions);
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      });
+
 
       // Batch Form Submission
       batchForm.addEventListener("submit", async (e) => {
@@ -1067,7 +1076,8 @@
           }
         }, "image/jpeg");
 
-        setTimeout(analyzeFrame, 500); // Process a frame every 500ms
+        setTimeout(analyzeFrame, 500); // Process a frame every 500ms, to not bombard the Inference API Endpoint
+        
       }
     </script>
   </body>
