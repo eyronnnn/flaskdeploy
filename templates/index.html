@@ -1078,6 +1078,11 @@
         );
 
         videoCanvas.toBlob(async (blob) => {
+          if (!blob) {
+            console.error("Failed to create blob from canvas");
+            return; // Bail out if blob creation fails
+          }
+
           const formData = new FormData();
           formData.append("file", blob, "frame.jpg");
 
@@ -1091,15 +1096,15 @@
               throw new Error("Network response was not ok");
             }
 
-            // stringifying the json data.
             const data = await response.json();
             videoResultData.textContent = JSON.stringify(data, null, 2);
+            displayImageWithBoundingBoxes(data.image_url, data.predictions);
           } catch (error) {
             console.error("Error:", error);
           }
-        }, "image/jpeg");
+        }, "image/jpeg"); // Make sure the mime type is correct
 
-        setTimeout(analyzeFrame, 500); // Process a frame every 500ms, to not bombard the Inference API Endpoint
+        setTimeout(analyzeFrame, 500); // Process a frame every 500ms
       }
       // END OF HELPER FUNCTIONS ZONE
 
@@ -1234,7 +1239,7 @@
         }
       });
 
-      // Start Real-Time Video Analysis 
+      // Start Real-Time Video Analysis
       startVideo.addEventListener("click", async () => {
         if (streaming) {
           // If streaming is active, stop the video and the analysis
