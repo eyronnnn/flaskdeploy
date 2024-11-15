@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-    <meta charset="UTF-8" / />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" / />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fish Freshness Detector</title>
     <link
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.3/dist/tailwind.min.css"
@@ -19,7 +19,21 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+      body {
+        font-family: "Poppins", sans-serif;
+        background-image: url('https://papers.co/wallpaper/papers.co-vd85-scifi-web-by-emilwidlund-dark-pattern-abstract-art-29-wallpaper.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        color: #e0e0e0;
+      }
+
       .semi-transparent-container {
         background-color: rgba(
           255,
@@ -136,11 +150,6 @@
         display: flex;
         justify-content: center; /* Center the canvas within imageWrapper */
         align-items: center;
-      }
-      body {
-        font-family: "Poppins", sans-serif;
-        background-color: #000000;
-        color: #e0e0e0;
       }
 
       h1 {
@@ -264,93 +273,10 @@
       .pie-chart-container {
         position: relative;
         height: 12rem; /* Adjust the height of the pie chart */
-        }
-        .popup {
+      }
+
+      .floating-shape {
         position: absolute;
-        top: 20%;
-        left: 10%;
-        background-color: #1a1a1a;
-        width: 20%; /* Adjusted width */
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
-        z-index: 1000;
-        display: none;
-      }
-
-      .popup h2 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        color: #ff6b6b;
-      }
-
-      .popup-options {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .popup-options label {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .popup-options input[type="radio"] {
-        margin: 0;
-      }
-
-      .popup button {
-        background-color: #ff3b3b;
-        width: 100%;
-        padding: 10px;
-        border-radius: 6px;
-        text-align: center;
-      }
-
-      .popup button:hover {
-        background-color: #ff6b6b;
-      }
-
-      .check-icon::after {
-        content: "✓";
-        color: green;
-        margin-left: 10px;
-      }
-
-      .answer-text {
-        color: red; /* Make the text and checkmark red */
-        font-weight: bold;
-      }
-
-          
-    .progress-bar-animated {
-        background-image: linear-gradient(
-            45deg,
-            rgba(255, 255, 255, 0.15) 25%,
-            transparent 25%,
-            transparent 50%,
-            rgba(255, 255, 255, 0.15) 50%,
-            rgba(255, 255, 255, 0.15) 75%,
-            transparent 75%,
-            transparent
-        );
-        background-size: 2rem 2rem;
-        animation: progressAnimation 1s linear infinite;
-        background-color: #B22222;
-    }
-    </style>
-  </head>
-  <body>
-    <div class="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-      <!-- Center Column: Input Forms -->
-      <div class="bg-[#1E1E1E] shadow-box rounded-3xl p-6">
-        <h2 class="text-center text-4xl font-bold mb-4">Fish Assessment Form</h2>
-        <p>
-          This form allows you to assess the fish based on various attributes such as appearance, gill color, and eye clarity. Ensure all
-          sections are completed for a thorough evaluation.
-        </p>
-        <br />
         border-radius: 50%;
         opacity: 0.2;
         filter: blur(20px);
@@ -415,46 +341,108 @@
         left: 80%;
         animation-delay: 6s;
       }
+      
+      .popup {
+        position: absolute;
+        top: 20%;
+        left: 10%;
+        background-color: #1a1a1a;
+        width: 20%;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+        z-index: 1000;
+        display: none;
+      }
+
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 999;
+        display: none;
+      }
+
+      .answer-text {
+        color: red;
+        font-weight: bold;
+      }
+
+      .progress-bar-container {
+        width: 100%;
+        height: 4px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        margin-top: 8px;
+        overflow: hidden;
+        display: none;
+      }
+
+      .progress-bar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(to right, #8b0000, #b22222);
+        position: relative;
+        transition: width 1.5s ease-in-out; /* Increased from 0.3s to 1.5s */
+        border-radius: 2px;
+      }
+
+      /* Enhanced fluid animation */
+      .progress-bar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: linear-gradient(
+          45deg,
+          rgba(255, 255, 255, 0.15) 25%,
+          transparent 25%,
+          transparent 50%,
+          rgba(255, 255, 255, 0.15) 50%,
+          rgba(255, 255, 255, 0.15) 75%,
+          transparent 75%,
+          transparent
+        );
+        background-size: 20px 20px;
+        animation: progress-bar-stripes 2s linear infinite, /* Increased from 1s to 2s */
+                   progress-bar-flow 5s ease infinite; /* Increased from 3s to 5s */
+        z-index: 1;
+      }
+
+      @keyframes progress-bar-stripes {
+        0% { background-position: 0 0; }
+        100% { background-position: 20px 0; }
+      }
+
+      @keyframes progress-bar-flow {
+        0% { opacity: 0.3; } /* Reduced from 0.5 to 0.3 */
+        50% { opacity: 0.8; } /* Reduced from 1 to 0.8 */
+        100% { opacity: 0.3; } /* Reduced from 0.5 to 0.3 */
+      }
+
+      .progress-text {
+        font-size: 12px;
+        color: #ffffff;
+        text-align: right;
+        margin-top: 4px;
+        display: none;
+      }
     </style>
   </head>
   <body>
-    <div class="floating-shape shape-1"></div>
-    <div class="floating-shape shape-2"></div>
-    <div class="floating-shape shape-3"></div>
-    <div class="floating-shape shape-4"></div>
-
-    <div class="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+    <div class="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-4 p-6">
       <!-- Center Column: Input Forms (Moved to the Left) -->
-      <div
-        class="bg-[#1E1E1E] mt-28 shadow-box rounded-3xl p-6 transition-all duration-500"
-        style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0)"
-        onmouseover="this.style.boxShadow='0 4px 30px #c1e7ec';"
-        onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';"
-      >
-        <h2
-          class="text-center mt-5 text-5xl font-bold mb-2 flex items-center justify-center"
-        >
-          Input Forms
-          <!-- Fish Outline Icon -->
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-10 w-10 ml-4 text-blue-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M3 12c0 2.5 2 4.5 4.5 4.5 1.28 0 2.432-.453 3.305-1.185.31.075.636.115.975.115 1.935 0 3.5-1.57 3.5-3.5s-1.565-3.5-3.5-3.5c-.34 0-.665.04-.975.115C9.932 7.953 8.78 7.5 7.5 7.5 5 7.5 3 9.5 3 12zm0 0s4.5 2 9 2 9-2 9-2m-4 5.5h1.5M17 7.5h1.5"
-            />
-          </svg>
-        </h2>
-
-        <p class="text-center text-md mt-5 text-white mb-10">
-          Fill out the details below to analyze fish freshness and batch
-          processing.
+      <div class="bg-[#1E1E1E] shadow-box rounded-3xl p-6 max-w-2xl mx-auto mt-20 transition-all duration-300" style="transition: all 0.3s ease; box-shadow: 0 0 0 rgba(255, 255, 255, 0)" 
+      onmouseover="this.style.boxShadow='0 0 30px rgba(255, 255, 255, 0.8)'" 
+      onmouseout="this.style.boxShadow='0 0 0 rgba(255, 255, 255, 0)'">
+        <h2 class="text-center text-4xl font-bold mb-4 mt-10 mb-10">Fish Assessment Form</h2>
+        <p class="mb-10 text-center text-sm">
+          Assess fish quality by evaluating appearance, gills, and eyes. Complete all sections.
         </p>
 
         <form>
@@ -472,6 +460,7 @@
               <option value="smellofthefish">Identify the smell of the fish</option>
             </select>
           </div>
+
           <div class="mb-4">
             <label for="eyes" class="block text-sm font-medium">Eyes</label>
             <select id="eyes" class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]">
@@ -480,6 +469,7 @@
               <option value="shape">Sunken or Bulging</option>
             </select>
           </div>
+
           <div class="mb-4">
             <label for="gills" class="block text-sm font-medium">Gills</label>
             <select id="gills" class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]">
@@ -488,86 +478,272 @@
               <option value="smell">Identify smell of gills</option>
             </select>
           </div>
-          <button
-            type="submit"
-            class="w-full py-2 px-4 rounded-lg hover:shadow-lg"
-            style="background: linear-gradient(to right, #8b0000, #b22222)"
+          <button 
+            type="submit" 
+            class="w-full py-2 px-4 rounded-2xl hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+            style="background: linear-gradient(to right, #8b0000, #b22222); box-shadow: 0 4px 6px -1px rgba(139, 0, 0, 0.3), 0 2px 4px -1px rgba(178, 34, 34, 0.2);"
           >
             Submit
           </button>
 
-          <!-- Result Display Section -->
           <div id="resultDisplay" class="mt-4 hidden">
             <h3 class="text-lg font-semibold">Result (Quality): <span id="qualityResult"></span></h3>
           </div>
 
-          <!-- Download Links Section -->
-          <div id="downloadLinks" class="mt-4 hidden">
-            <h3 class="text-lg font-semibold mb-2">Download your files:</h3>
-            <a id="downloadPDF" href="#" class="block text-blue-500 hover:underline">Download PDF</a>
-            <a id="downloadExcel" href="#" class="block text-blue-500 hover:underline">Download Excel</a>
-          </div>
-          <div class="mb-4">
-            <label for="fishName" class="block text-sm font-medium"
-              >Fish Name</label
-            >
-            <input
-              type="text"
-              id="fishName"
-              placeholder="Enter fish name"
-              class="mt-1 block w-full px-3 py-2 rounded-md"
-            />
-          </div>
-          <div class="mb-4">
-            <label for="fishWeight" class="block text-sm font-medium"
-              >Weight (kg)</label
-            >
-            <input
-              type="number"
-              id="fishWeight"
-              placeholder="Enter weight"
-              class="mt-1 block w-full px-3 py-2 rounded-md"
-            />
-          </div>
-          <button
-            type="submit"
-            class="w-full py-2 px-4 rounded-lg hover:shadow-lg"
-            style="background: linear-gradient(to right, #8b0000, #b22222)"
-          >
-            Submit
-          </button>
-        </form>
-      </div>
+            <div id="downloadLinks" class="mt-4 hidden">
+              <h3 class="text-lg font-semibold mb-2">Download your files:</h3>
+              <a id="downloadPDF" href="#" class="block text-blue-500 hover:underline">Download PDF</a>
+              <a id="downloadExcel" href="#" class="block text-blue-500 hover:underline">Download Excel</a>
+            </div>
+          </form>
       </div>
 
-      <!-- Popup -->
-      <div class="popup" id="popup">
-        <h2 class="text-xl font-bold mb-4" id="popupTitle">Select an Option</h2>
-        <form id="popupForm">
-          <div id="popupOptions" class="popup-options"></div>
-          <button type="button" id="closePopup" class="mt-4 px-4 py-2 rounded bg-red-600 text-white">Submit</button>
-        </form>
-      </div>
+      
 
-      <div class="bg-[#1E1E1E] mt-10 shadow-4xl rounded-3xl p-6 hover:bg-[#2B2B2B] transition-all duration-500" style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0);" onmouseover="this.style.boxShadow='0 4px 40px #c1e7ec';" onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';">
-        <h1 class="text-center text-5xl font-bold mb-10 mt-10 pulse-effect" style="color: #FFFFFF; text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.9);">AquaGrade</h1>
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          window.jsPDF = window.jspdf.jsPDF;
+  
+          const optionsData = {
+            brightness: [
+              { value: 0, label: "Bright, shining" },
+              { value: 1, label: "Bright" },
+              { value: 2, label: "Dull" },
+            ],
+            bloodspot: [
+              { value: 0, label: "None" },
+              { value: 1, label: "Small, 10-30%" },
+              { value: 2, label: "Big, 30-50%" },
+              { value: 3, label: "Very Big, 50-100%" },
+            ],
+            stiffness: [
+              { value: 0, label: "Stiff" },
+              { value: 1, label: "Elastic" },
+              { value: 2, label: "Firm" },
+              { value: 3, label: "Soft" },
+            ],
+            belly: [
+              { value: 0, label: "Firm" },
+              { value: 1, label: "Soft" },
+              { value: 2, label: "Belly Burst" },
+            ],
+            smellofthefish: [
+              { value: 0, label: "Fresh" },
+              { value: 1, label: "Neutral" },
+              { value: 2, label: "Musty" },
+              { value: 3, label: "Stale meat/rancid" },
+            ],
+            clarity: [
+              { value: 0, label: "Clear" },
+              { value: 1, label: "Cloudy" },
+            ],
+            shape: [
+              { value: 0, label: "Normal" },
+              { value: 1, label: "Sunken" },
+            ],
+            colour: [
+              { value: 0, label: "Bright red" },
+              { value: 1, label: "Dark red" },
+              { value: 2, label: "Pale" },
+            ],
+            smell: [
+              { value: 0, label: "Fresh" },
+              { value: 1, label: "Neutral" },
+              { value: 2, label: "Sweaty" },
+            ],
+          };
+  
+          const dropdowns = document.querySelectorAll(".dropdown");
+          const popup = document.getElementById("popup");
+          const overlay = document.getElementById("overlay");
+          const popupTitle = document.getElementById("popupTitle");
+          const popupOptions = document.getElementById("popupOptions");
+          const closePopup = document.getElementById("closePopup");
+          const submitButton = document.querySelector("button[type='submit']");
+          let activeDropdown;
+          const userSelections = {};
+  
+          dropdowns.forEach((dropdown) => {
+            dropdown.addEventListener("change", function () {
+              const selectedValue = this.value;
+              const options = optionsData[selectedValue];
+              activeDropdown = this;
+  
+              popupTitle.textContent = "Select an Option";
+              popupOptions.innerHTML = "";
+  
+              options.forEach((option) => {
+                const label = document.createElement("label");
+                label.classList.add("flex", "items-center", "mb-2");
+  
+                const radio = document.createElement("input");
+                radio.type = "radio";
+                radio.name = "popupOption";
+                radio.value = JSON.stringify(option);
+                radio.classList.add("mr-2");
+  
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(option.label));
+  
+                popupOptions.appendChild(label);
+              });
+  
+              popup.style.display = "block";
+              overlay.style.display = "block";
+            });
+          });
+  
+          closePopup.addEventListener("click", function () {
+            const selectedOption = document.querySelector('input[name="popupOption"]:checked');
+  
+            if (selectedOption) {
+              const selectedData = JSON.parse(selectedOption.value);
+              const { label, value } = selectedData;
+  
+              const currentOption = activeDropdown.querySelector(`option[value="${activeDropdown.value}"]`);
+              currentOption.innerHTML = `${currentOption.textContent.split(" - ")[0]} - <span class="answer-text">Rate Answer: ${label} ✓</span>`;
+  
+              userSelections[activeDropdown.value] = {
+                question: currentOption.textContent.split(" - ")[0],
+                label,
+                score: value,
+              };
+  
+              const allOptions = [...activeDropdown.options];
+              const answeredOptions = allOptions.filter((opt) => opt.innerHTML.includes("Rate Answer:"));
+  
+              if (answeredOptions.length === allOptions.length - 1) {
+                activeDropdown.querySelector("option").textContent = `${
+                  activeDropdown.querySelector("option").textContent.split(" (")[0]
+                } (Completed Answering)`;
+              }
+  
+              activeDropdown.value = "";
+            }
+  
+            popup.style.display = "none";
+            overlay.style.display = "none";
+          });
+  
+          submitButton.addEventListener("click", (e) => {
+            e.preventDefault();
+  
+            const uncompletedDropdowns = [...dropdowns].filter(
+              (dropdown) => !dropdown.querySelector("option:first-child").textContent.includes("Completed Answering")
+            );
+  
+            if (uncompletedDropdowns.length > 0) {
+              alert("Please complete all the sections before submitting!");
+              return;
+            }
+  
+            const totalScore = Object.values(userSelections).reduce((acc, curr) => acc + curr.score, 0);
+            const qualityLabel = getQualityLabel(totalScore);
+  
+            document.getElementById("qualityResult").textContent = qualityLabel;
+            document.getElementById("resultDisplay").classList.remove("hidden");
+  
+            generatePDF(totalScore, qualityLabel);
+            generateExcel(totalScore, qualityLabel);
+            document.getElementById("downloadLinks").classList.remove("hidden");
+          });
+  
+          function getQualityLabel(score) {
+            if (score <= 3) return "Prime Quality";
+            if (score <= 5) return "High Quality";
+            if (score <= 8) return "Good Quality";
+            if (score <= 11) return "Acceptable";
+            if (score <= 15) return "Marginal";
+            if (score <= 19) return "Poor Quality";
+            return "Unacceptable";
+          }
+  
+          function generatePDF(totalScore, qualityLabel) {
+            const doc = new jsPDF();
+            doc.setFontSize(16);
+            doc.text("FISH ASSESSMENT FORM - SUBMISSION SUMMARY", 10, 10);
+            doc.setFontSize(12);
+            let y = 30;
+  
+            Object.entries(userSelections).forEach(([field, data]) => {
+              doc.text(`${data.question}: ${data.label} (Score: ${data.score})`, 10, y);
+              y += 10;
+            });
+  
+            doc.setFont("helvetica", "bold");
+            doc.text(`Total Score: ${totalScore}`, 10, y + 10);
+            doc.text(`Quality: ${qualityLabel}`, 10, y + 20);
+  
+            const pdfBlob = doc.output("blob");
+            document.getElementById("downloadPDF").href = URL.createObjectURL(pdfBlob);
+            document.getElementById("downloadPDF").download = "FishAssessment.pdf";
+          }
+  
+          function generateExcel(totalScore, qualityLabel) {
+            const workbook = XLSX.utils.book_new();
+            const worksheetData = [["Question", "Answer", "Score"]];
+  
+            Object.values(userSelections).forEach((data) => {
+              worksheetData.push([data.question, data.label, data.score]);
+            });
+  
+            worksheetData.push(["Total Score", totalScore, ""]);
+            worksheetData.push(["Quality", qualityLabel, ""]);
+  
+            const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Fish Assessment");
+  
+            const excelBlob = new Blob([XLSX.write(workbook, { bookType: "xlsx", type: "array" })], {
+              type: "application/octet-stream",
+            });
+  
+            document.getElementById("downloadExcel").href = URL.createObjectURL(excelBlob);
+            document.getElementById("downloadExcel").download = "FishAssessment.xlsx";
+          }
+        });
+      </script>
+
+      <!-- Left Column: Fish Freshness Detector (Moved to the Center) -->
+      <div
+        class="bg-[#1E1E1E] mt-10 shadow-4xl rounded-3xl p-6 hover:bg-[#2B2B2B] transition-all duration-500 ml-4"
+        style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0)" 
+        onmouseover="this.style.boxShadow='0 4px 40px #c1e7ec';"
+        onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';"
+      >
+        <h1
+          class="text-center text-5xl font-bold mb-10 mt-10 pulse-effect"
+          style="
+            color: #ffffff;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 1),
+              0 0 40px rgba(255, 255, 255, 0.9);
+          "
+        >
+          AquaGrade
+        </h1>
+
         <style>
-            @keyframes pulse {
-                0% {
-                    text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.9);
-                }
-                50% {
-                    text-shadow: 0 0 50px rgba(255, 255, 255, 1), 0 0 70px rgba(255, 255, 255, 1);
-                }
-                100% {
-                    text-shadow: 0 0 30px rgba(255, 255, 255, 1), 0 0 40px rgba(255, 255, 255, 0.9);
-                }
+          @keyframes pulse {
+            0% {
+              text-shadow: 0 0 30px rgba(255, 255, 255, 1),
+                0 0 40px rgba(255, 255, 255, 0.9);
             }
-            .pulse-effect {
-                animation: pulse 1.2s infinite ease-in-out;
-                font-weight: 900;
+            50% {
+              text-shadow: 0 0 50px rgba(255, 255, 255, 1),
+                0 0 70px rgba(255, 255, 255, 1);
             }
+            100% {
+              text-shadow: 0 0 30px rgba(255, 255, 255, 1),
+                0 0 40px rgba(255, 255, 255, 0.9);
+            }
+          }
+
+          .pulse-effect {
+            animation: pulse 1.2s infinite ease-in-out;
+            font-weight: 900; /* Make the text bolder to enhance visibility */
+          }
         </style>
+
+        <!-- Option Tabs -->
         <div class="mb-4 flex justify-between shadow-lg">
           <button
             id="videoTab"
@@ -585,6 +761,8 @@
             Batch
           </button>
         </div>
+
+        <!-- Real-time Video Section -->
         <div id="videoSection">
           <label class="mt-8 mb-5 ml-2 block text-sm font-medium">
             Real-time video analysis
@@ -633,18 +811,9 @@
               "
             ></pre>
           </div>
-            <label class="mt-8 mb-5 ml-2 block text-sm font-medium">Real-time video analysis<span class="info-icon" data-info="Analyze video frames in real-time from your webcam.">i</span></label>
-            <button id="startVideo" class="w-full py-2 px-4 rounded-2xl mt-2 hover:shadow-lg" style="background: linear-gradient(to right, #8B0000, #B22222);">Start Real-time Analysis</button>
-            <div class="flex justify-center mt-10">
-                <video id="videoStream" autoplay class="rounded-lg shadow-lg" style="width: 80%; max-width: 800px; height: auto;"></video>
-            </div>
-            <div class="flex justify-center mt-10">
-                <label class="block text-lg font-semibold text-center mb-2">Inference Result:</label>
-            </div>
-            <div class="flex justify-center">
-                <pre id="videoResultData" class="p-4 rounded-lg overflow-auto text-sm shadow-lg" style="width: 80%; max-width: 800px; background-color: #1F1F1F; color: #FF7F7F;"></pre>
-            </div>
         </div>
+
+        <!-- Upload Image Section -->
         <form id="uploadForm" enctype="multipart/form-data" class="hidden">
           <div class="mb-4">
             <label for="file" class="block mt-8 mb-5 ml-2 text-sm font-medium">
@@ -670,32 +839,13 @@
           >
             Upload Image
           </button>
+          <div class="progress-bar-container" id="uploadProgress">
+            <div class="progress-bar"></div>
+          </div>
+          <div class="progress-text" id="uploadProgressText">0%</div>
         </form>
 
         <!-- Capture Image Section -->
-            <div class="mb-4">
-                <label for="file" class="block mt-8 mb-5 ml-2 text-sm font-medium">Upload an image<span class="info-icon" data-info="Upload a single image from your device for freshness detection.">i</span></label>
-                <input type="file" id="file" name="file" accept="image/*" class="mt-1 block w-full px-3 py-2 rounded-md shadow-lg">
-            </div>
-            <div id="uploadProgress" class="mt-8 mb-8 hidden w-full max-w-4xl mx-auto">
-                <div class="relative">
-                    <div class="w-full bg-gray-800 rounded-full h-4 dark:bg-gray-700 overflow-hidden">
-                        <div id="uploadProgressValue" 
-                             class="h-4 rounded-full transition-all duration-700 ease-in-out progress-bar-animated" 
-                             style="width: 0%; background-color: #B22222;">
-                        </div>
-                    </div>
-                    <span id="uploadProgressPercentage" 
-                          class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-bold text-white min-w-[50px] text-center">0%</span>
-                </div>
-            </div>
-            <button type="submit" class="w-full py-2 px-4 rounded-2xl hover:shadow-lg" style="background: linear-gradient(to right, #8B0000, #B22222);">Upload Image</button>
-            
-            <div id="uploadResultDiv" class="mt-4 hidden">
-                <h2 class="text-lg font-semibold">Inference Result:</h2>
-                <pre id="uploadResultData" class="p-4 rounded-lg overflow-auto text-sm shadow-lg" style="background-color: #1F1F1F; color: #FF7F7F;"></pre>
-            </div>
-        </form>
         <div id="captureSection" class="hidden">
           <label class="block text-sm font-medium text-white mt-5 mb-5">
             Capture an image
@@ -709,7 +859,7 @@
             id="startWebcam"
             class="w-full py-2 px-4 bg-black text-white rounded-lg hover:bg-gray-900 shadow-lg mt-2"
             style="
-              font-family: 'Clash Display', sans-serif;
+              font-family: 'Poppins', sans-serif;
               background: linear-gradient(to right, #8b0000, #b22222);
             "
           >
@@ -727,36 +877,15 @@
           >
             Capture Image
           </button>
-            <label class="block text-sm font-medium text-white mt-5 mb-5">Capture an image<span class="info-icon" data-info="Use this feature to capture an image directly from your webcam. Ensure camera permissions are granted.">i</span></label>
-            <button id="startWebcam" class="w-full py-2 px-4 bg-black text-white rounded-lg hover:bg-gray-900 shadow-lg mt-2" style="font-family: 'Clash Display', sans-serif;background: linear-gradient(to right, #8B0000, #B22222);">Start Webcam</button>
-            <video id="webcam" autoplay class="mt-4 w-full rounded-lg shadow-lg hidden"></video>
-            <canvas id="snapshot" class="hidden"></canvas>
-            <button id="capture" class="w-full py-2 px-4 bg-black text-white rounded-lg mt-2 hover:bg-gray-900 shadow-lg hidden">Capture Image</button>
+
+          <div class="progress-bar-container" id="captureProgress">
+            <div class="progress-bar"></div>
+          </div>
+          <div class="progress-text" id="captureProgressText">0%</div>
         </div>
+
+        <!-- Batch Upload Section -->
         <form id="batchForm" enctype="multipart/form-data" class="hidden">
-            <div class="mb-4">
-                <label for="files" class="block text-sm mt-8 mb-5 ml-2 font-medium">Upload multiple images<span class="info-icon" data-info="Upload multiple images for batch processing.">i</span></label>
-                <input type="file" id="files" name="files" accept="image/*" multiple class="mt-1 block w-full px-3 py-2 rounded-md shadow-lg">
-            </div>
-            <div id="batchProgress" class="mt-8 mb-8 hidden w-full max-w-4xl mx-auto">
-                <div class="relative">
-                    <div class="w-full bg-gray-800 rounded-full h-4 dark:bg-gray-700 overflow-hidden">
-                        <div id="batchProgressValue" 
-                             class="h-4 rounded-full transition-all duration-700 ease-in-out progress-bar-animated" 
-                             style="width: 0%">
-                        </div>
-                    </div>
-                    <span id="batchProgressPercentage" 
-                          class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-sm font-bold text-white min-w-[50px] text-center">0%</span>
-                </div>
-            </div>
-            <button type="submit" class="w-full py-2 px-4 rounded-2xl hover:shadow-lg" style="background: linear-gradient(to right, #8B0000, #B22222);">Upload Batch</button>
-            
-            <div id="batchResultDiv" class="mt-4 hidden">
-                <h2 class="text-lg font-semibold">Batch Processing Results:</h2>
-                <pre id="batchResultData" class="p-4 rounded-lg overflow-auto text-sm shadow-lg" style="background-color: #1F1F1F; color: #FF7F7F;"></pre>
-            </div>
-        </form>
           <div class="mb-4">
             <label for="files" class="block text-sm mt-8 mb-5 ml-2 font-medium">
               Upload multiple images
@@ -782,6 +911,11 @@
           >
             Upload Batch
           </button>
+
+          <div class="progress-bar-container" id="batchProgress">
+            <div class="progress-bar"></div>
+          </div>
+          <div class="progress-text" id="batchProgressText">0%</div>
         </form>
 
         <!-- Result Display -->
@@ -855,36 +989,22 @@
           <div class="chart-container mt-4">
             <canvas id="lineChart"></canvas>
           </div>
-    </div>
-    <div class="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-        <div class="mt-20 bg-gradient-to-br from-[#333333] to-[#444444] shadow-box rounded-3xl p-6 md:col-span-3 relative-position transition-all duration-500" style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0);" onmouseover="this.style.boxShadow='0 4px 30px #c1e7ec';" onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';">
-            <h2 class="text-center mt-10 text-5xl font-bold mb-4">Charts</h2>
-            <div class="stats shadow-lg w-24 h-14 content-center absolute top-40 rounded-3xl bg-[#333333] text-white font-bold font-poppins transition-transform duration-500 ease-in-out hover:scale-105 scale-75" style="right: 79px; box-shadow: 0 3px 15px rgba(255, 0, 0, 0.8);" onmouseover="this.style.boxShadow='0 4px 18px rgba(255, 0, 0, 1)';" onmouseout="this.style.boxShadow='0 3px 15px rgba(255, 0, 0, 0.8)';">
-                <div class="stat text-left flex items-center justify-between px-4">
-                    <div class="stat-value text-sm mr-2 text-white" id="count">0</div>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                </div>
-            </div>
-            <div class="mt-20 pie-chart-container">
-                <canvas id="pieChart"></canvas>
-            </div>
-            <div class="chart-container mt-4">
-                <canvas id="lineChart"></canvas>
-            </div>
         </div>
       </div>
+
       <script>
+        // Counter Animation Script
         document.addEventListener("DOMContentLoaded", function () {
           const targetNumber = 89400;
           const speed = 50;
+
           const counter = document.getElementById("count");
           let count = 0;
+
           const updateCount = () => {
             const increment = Math.ceil(targetNumber / speed);
             count += increment;
+
             if (count < targetNumber) {
               counter.textContent = count.toLocaleString();
               setTimeout(updateCount, 30);
@@ -892,8 +1012,11 @@
               counter.textContent = targetNumber.toLocaleString();
             }
           };
+
           updateCount();
         });
+
+        // Chart.js Configuration (Remaining Existing Chart Logic)
         const ctxPie = document.getElementById("pieChart").getContext("2d");
         const pieChart = new Chart(ctxPie, {
           type: "doughnut",
@@ -918,10 +1041,12 @@
             },
           },
         });
+
         const ctxLine = document.getElementById("lineChart").getContext("2d");
         const gradientLine = ctxLine.createLinearGradient(0, 0, 400, 0);
         gradientLine.addColorStop(0, "#FF0000");
         gradientLine.addColorStop(1, "#FFFFFF");
+
         const lineChart = new Chart(ctxLine, {
           type: "line",
           data: {
@@ -948,12 +1073,16 @@
             },
           },
         });
+
+        // Simulate updates every 3 seconds
         setInterval(() => {
           const newLabel = `${lineChart.data.labels.length + 1}s`;
           const newData = Math.floor(Math.random() * 50);
+
           lineChart.data.labels.push(newLabel);
           lineChart.data.datasets[0].data.push(newData);
           lineChart.update();
+
           const freshValue = Math.floor(Math.random() * 100);
           const notFreshValue = 100 - freshValue;
           pieChart.data.datasets[0].data = [freshValue, notFreshValue];
@@ -1001,8 +1130,8 @@
         legendContainer.innerHTML = `
     <div class="not-available">
         <div class="semi-transparent-container">
-            <img src="{{ url_for('static', filename='assets/empty-box.png') }}" class="not-available-image" alt="No data">
-            <span class="not-available-text">Empty or no predictions available. Please upload or capture an image.</span>
+            <!-- <img src="{{ url_for('static', filename='assets/empty-box.png') }}" class="not-available-image" alt="No data"> -->
+            <span class="not-available-text" style="font-size: 0.75rem">Empty or no predictions available. Please upload or capture an image.</span>
         </div>
     </div>
   `;
@@ -1297,8 +1426,32 @@
       const allTabs = [uploadTab, captureTab, batchTab, videoTab];
       const sections = [uploadForm, captureSection, batchForm, videoSection];
 
+      // Helper function to stop all camera streams
+      function stopAllCameraStreams() {
+        // Stop webcam stream
+        if (webcam.srcObject) {
+          webcam.srcObject.getTracks().forEach(track => track.stop());
+          webcam.srcObject = null;
+        }
+        
+        // Stop video stream
+        if (videoStream.srcObject) {
+          videoStream.srcObject.getTracks().forEach(track => track.stop());
+          videoStream.srcObject = null;
+          streaming = false;
+        }
+      }
+
       allTabs.forEach((tab, index) => {
         tab.addEventListener("click", () => {
+          // Check if switching to Upload or Batch tab
+          if (tab === uploadTab || tab === batchTab) {
+            stopAllCameraStreams();
+            // Reset UI elements
+            webcam.classList.add("hidden");
+            capture.classList.add("hidden");
+          }
+
           sections.forEach((section, i) => {
             if (index === i) {
               section.classList.remove("hidden");
@@ -1351,613 +1504,139 @@
         }, "image/jpeg");
       });
 
+      // Enhanced progress update function with synchronized slower movement
+      function updateProgress(progressBar, progressText, progress) {
+        const progressElement = progressBar.querySelector('.progress-bar');
+        
+        // Show progress elements
+        progressBar.style.display = 'block';
+        progressText.style.display = 'block';
+        
+        const currentWidth = parseFloat(progressElement.style.width) || 0;
+        const targetWidth = progress;
+        const duration = 1500; // Total animation duration in milliseconds
+        const startTime = performance.now();
+        
+        const animate = (currentTime) => {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          const currentProgress = currentWidth + (targetWidth - currentWidth) * progress;
+          
+          progressElement.style.width = `${currentProgress}%`;
+          progressText.textContent = `${Math.round(currentProgress)}%`;
+          
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          }
+        };
+        
+        requestAnimationFrame(animate);
+      }
+
+      // Modified upload form handler
       uploadForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(uploadForm);
-        let imageWrapper = document.getElementById("imageWrapper");
-
-        try {
-          const response = await fetch("/upload-single-image", {
-            method: "POST",
-            body: formData,
-          });
-    </script>
-</div>
-<script>
-    const uploadForm = document.getElementById('uploadForm');
-    const batchForm = document.getElementById('batchForm');
-    const resultDiv = document.getElementById('resultDiv');
-    const resultData = document.getElementById('resultData');
-    const videoResultData = document.getElementById('videoResultData');
-    const captureSection = document.getElementById('captureSection');
-    const videoSection = document.getElementById('videoSection');
-    const webcam = document.getElementById('webcam');
-    const videoStream = document.getElementById('videoStream');
-    const snapshot = document.getElementById('snapshot');
-    const capture = document.getElementById('capture');
-    const startWebcam = document.getElementById('startWebcam');
-    const startVideo = document.getElementById('startVideo');
-    const uploadTab = document.getElementById('uploadTab');
-    const captureTab = document.getElementById('captureTab');
-    const batchTab = document.getElementById('batchTab');
-    const videoTab = document.getElementById('videoTab');
-    const uploadProgress = document.getElementById('uploadProgress');
-    const uploadProgressValue = document.getElementById('uploadProgressValue');
-    const uploadProgressPercentage = document.getElementById('uploadProgressPercentage');
-    const batchProgress = document.getElementById('batchProgress');
-    const batchProgressValue = document.getElementById('batchProgressValue');
-    const batchProgressPercentage = document.getElementById('batchProgressPercentage');
-    const batchResultDiv = document.getElementById('batchResultDiv');
-    const batchResultData = document.getElementById('batchResultData');
-    let streaming = false;
-    const allTabs = [uploadTab, captureTab, batchTab, videoTab];
-    const sections = [uploadForm, captureSection, batchForm, videoSection];
-    allTabs.forEach((tab, index) => {
-        tab.addEventListener('click', () => {
-            stopAllVideoStreams();
-            sections.forEach((section, i) => {
-                if (index === i) {
-                    section.classList.remove('hidden');
-                    allTabs[i].classList.add('active');
-                } else {
-                    section.classList.add('hidden');
-                    allTabs[i].classList.remove('active');
-                }
-            });
-            resultDiv.classList.add('hidden');
-            if (uploadResultDiv) uploadResultDiv.classList.add('hidden');
-            if (uploadResultData) uploadResultData.textContent = '';
-            if (batchResultDiv) batchResultDiv.classList.add('hidden');
-            if (batchResultData) batchResultData.textContent = '';
-        });
-    });
-    startWebcam.addEventListener('click', async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            webcam.srcObject = stream;
-            webcam.classList.remove('hidden');
-            capture.classList.remove('hidden');
-        } catch (error) {
-            console.error('Webcam access error:', error);
-            alert('Failed to access the camera. Please allow permissions and try again.');
-        }
-    });
-    capture.addEventListener('click', () => {
-        const context = snapshot.getContext('2d');
-        snapshot.width = webcam.videoWidth;
-        snapshot.height = webcam.videoHeight;
-        context.drawImage(webcam, 0, 0, snapshot.width, snapshot.height);
-        snapshot.toBlob(async (blob) => {
-            const formData = new FormData();
-            formData.append('file', blob, 'snapshot.jpg');
-            try {
-                const response = await fetch('/upload-single-image', {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!response.ok) {
-                    throw new Error('Upload failed.');
-                }
-                const data = await response.json();
-                resultData.textContent = JSON.stringify(data, null, 2);
-                resultDiv.classList.remove('hidden');
-            } catch (error) {
-                console.error('Error uploading snapshot:', error);
-                alert('Snapshot upload failed.');
-            }
-        }, 'image/jpeg');
-    });
-    function updateProgress(percentage, isBatch = false) {
-        const progressBar = isBatch ? batchProgressValue : uploadProgressValue;
-        const progressText = isBatch ? batchProgressPercentage : uploadProgressPercentage;
-        progressBar.style.width = `${percentage}%`;
-        progressText.textContent = `${Math.round(percentage)}%`;
-    }
-    function simulateProgress(onProgress) {
-        let progress = 0;
-        const interval = setInterval(() => {
-            if (progress < 90) {
-                progress += Math.random() * 10;
-                progress = Math.min(progress, 90);
-                if (onProgress) onProgress(progress);
-            }
-        }, 300);
-
-        return {
-            complete: (callback) => {
-                clearInterval(interval);
-                if (onProgress) onProgress(100);
-                if (callback) callback();
-            },
-            reset: () => {
-                clearInterval(interval);
-                if (onProgress) onProgress(0);
-            }
-        };
-    }
-    uploadForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(uploadForm);
+        const progressBar = document.getElementById('uploadProgress');
+        const progressText = document.getElementById('uploadProgressText');
         
-        // Reset and show progress bar
-        uploadResultDiv.classList.add('hidden');
-        uploadProgress.classList.remove('hidden');
-        updateProgress(0);
-
-        const progressSimulation = simulateProgress((progress) => {
-            updateProgress(progress);
-        });
-
         try {
-            const response = await fetch('/upload-single-image', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error('Upload failed');
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/upload-single-image', true);
+          
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+              const progress = (e.loaded / e.total) * 100;
+              updateProgress(progressBar, progressText, progress);
             }
-
-            const predictionData = await response.json();
-            
-            // Complete the progress animation and show results
-            progressSimulation.complete(() => {
-                uploadResultData.textContent = JSON.stringify(predictionData, null, 2);
-                uploadResultDiv.classList.remove('hidden');
-
-                // Hide progress bar after a delay
-                setTimeout(() => {
-                    uploadProgress.classList.add('hidden');
-                }, 1000);
-            });
-
+          };
+          
+          xhr.onload = async () => {
+            if (xhr.status === 200) {
+              const data = JSON.parse(xhr.responseText);
+              resultData.textContent = JSON.stringify(data, null, 2);
+              resultDiv.classList.remove("hidden");
+              
+              let predictionData = data.predictions;
+              const file = formData.get("file");
+              const imageUrl = URL.createObjectURL(file);
+              
+              displayImageWithBoundingBoxes(imageUrl, predictionData);
+              generateQualityLegend(predictionData);
+              
+              // Hide progress bar after completion
+              setTimeout(() => {
+                progressBar.style.display = 'none';
+                progressText.style.display = 'none';
+              }, 1000);
+            }
+          };
+          
+          xhr.send(formData);
         } catch (error) {
-            console.error('Upload failed:', error);
-            progressSimulation.reset();
-            uploadProgress.classList.add('hidden');
-            alert('Upload failed: ' + error.message);
+          console.error("Error:", error);
         }
-    });
-    batchForm.addEventListener('submit', async (e) => {
+      });
+
+      // Modified batch form handler
+      batchForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(batchForm);
+        const progressBar = document.getElementById('batchProgress');
+        const progressText = document.getElementById('batchProgressText');
         
-        batchResultDiv.classList.add('hidden');
-        batchProgress.classList.remove('hidden');
-        updateProgress(0, true);
-
-        const progressSimulation = simulateProgress((progress) => {
-            updateProgress(progress, true);
-        });
-
         try {
-          const response = await fetch("/upload-batch-images", {
-            method: "POST",
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to upload batch.");
-          }
-
-            const predictionData = await response.json();
-            
-            // Complete the progress animation and show results
-            progressSimulation.complete(() => {
-                // Format the prediction data for better readability
-                batchResultData.textContent = JSON.stringify(predictionData, null, 2);
-                batchResultDiv.classList.remove('hidden');
-
-                // Hide progress bar after a delay
-                setTimeout(() => {
-                    batchProgress.classList.add('hidden');
-                    updateProgress(0, true);
-                }, 1000);
-            });
-
-        } catch (error) {
-            console.error('Batch upload failed:', error);
-            progressSimulation.reset();
-            batchProgress.classList.add('hidden');
-            alert('Batch upload failed: ' + error.message);
-        }
-    });
-    startVideo.addEventListener('click', async () => {
-        if (!streaming) {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            videoStream.srcObject = stream;
-            streaming = true;
-            analyzeFrame();
-        }
-    });
-    async function analyzeFrame() {
-        if (!streaming) return;
-        const videoCanvas = document.createElement('canvas');
-        videoCanvas.width = 640;
-        videoCanvas.height = (640 / videoStream.videoWidth) * videoStream.videoHeight;
-        const videoContext = videoCanvas.getContext('2d');
-        videoContext.drawImage(videoStream, 0, 0, videoCanvas.width, videoCanvas.height);
-        videoCanvas.toBlob(async (blob) => {
-            const formData = new FormData();
-            formData.append('file', blob, 'frame.jpg');
-            try {
-                const response = await fetch('/upload-single-image', {
-                    method: 'POST',
-                    body: formData
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                videoResultData.textContent = JSON.stringify(data, null, 2);
-            } catch (error) {
-                console.error('Error:', error);
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', '/upload-batch-images', true);
+          
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+              const progress = (e.loaded / e.total) * 100;
+              updateProgress(progressBar, progressText, progress);
             }
-        }, 'image/jpeg');
-        setTimeout(analyzeFrame, 500);
-    }
-    function stopAllVideoStreams() {
-        if (videoStream.srcObject) {
-            const tracks = videoStream.srcObject.getTracks();
-            tracks.forEach(track => track.stop());
-            videoStream.srcObject = null;
-            streaming = false;
-        }
-        
-        if (webcam.srcObject) {
-            const tracks = webcam.srcObject.getTracks();
-            tracks.forEach(track => track.stop());
-            webcam.srcObject = null;
-            webcam.classList.add('hidden');
-            capture.classList.add('hidden');
-        }
-    }
-</script>
-
-    <script>
-
-      document.addEventListener("DOMContentLoaded", () => {
-        window.jsPDF = window.jspdf.jsPDF;
-
-        const optionsData = {
-          brightness: [
-            { value: 0, label: "Bright, shining" },
-            { value: 1, label: "Bright" },
-            { value: 2, label: "Dull" },
-          ],
-          bloodspot: [
-            { value: 0, label: "None" },
-            { value: 1, label: "Small, 10-30%" },
-            { value: 2, label: "Big, 30-50%" },
-            { value: 3, label: "Very Big, 50-100%" },
-          ],
-          stiffness: [
-            { value: 0, label: "Stiff" },
-            { value: 1, label: "Elastic" },
-            { value: 2, label: "Firm" },
-            { value: 3, label: "Soft" },
-          ],
-          belly: [
-            { value: 0, label: "Firm" },
-            { value: 1, label: "Soft" },
-            { value: 2, label: "Belly Burst" },
-          ],
-          smellofthefish: [
-            { value: 0, label: "Fresh" },
-            { value: 1, label: "Neutral" },
-            { value: 2, label: "Musty" },
-            { value: 3, label: "Stale meat/rancid" },
-          ],
-          clarity: [
-            { value: 0, label: "Clear" },
-            { value: 1, label: "Cloudy" },
-          ],
-          shape: [
-            { value: 0, label: "Normal" },
-            { value: 1, label: "Sunken" },
-          ],
-          colour: [
-            { value: 0, label: "Bright red" },
-            { value: 1, label: "Dark red" },
-            { value: 2, label: "Pale" },
-          ],
-          smell: [
-            { value: 0, label: "Fresh" },
-            { value: 1, label: "Neutral" },
-            { value: 2, label: "Sweaty" },
-          ],
-        };
-
-        const dropdowns = document.querySelectorAll(".dropdown");
-        const popup = document.getElementById("popup");
-        const overlay = document.getElementById("overlay");
-        const popupTitle = document.getElementById("popupTitle");
-        const popupOptions = document.getElementById("popupOptions");
-        const closePopup = document.getElementById("closePopup");
-        const submitButton = document.querySelector("button[type='submit']");
-        let activeDropdown;
-        const userSelections = {}; // To store question, label, and value (score)
-
-        dropdowns.forEach((dropdown) => {
-          dropdown.addEventListener("change", function () {
-            const selectedValue = this.value;
-            const options = optionsData[selectedValue];
-            activeDropdown = this;
-
-            popupTitle.textContent = "Select an Option";
-            popupOptions.innerHTML = "";
-
-            options.forEach((option) => {
-              const label = document.createElement("label");
-              label.classList.add("flex", "items-center", "mb-2");
-
-              const radio = document.createElement("input");
-              radio.type = "radio";
-              radio.name = "popupOption";
-              radio.value = JSON.stringify(option); // Store both label and value
-              radio.classList.add("mr-2");
-
-              label.appendChild(radio);
-              label.appendChild(document.createTextNode(option.label));
-
-              popupOptions.appendChild(label);
-            });
-
-            popup.style.display = "block";
-            overlay.style.display = "block";
-          });
-        });
-
-        closePopup.addEventListener("click", function () {
-          const selectedOption = document.querySelector('input[name="popupOption"]:checked');
-
-          if (selectedOption) {
-            const selectedData = JSON.parse(selectedOption.value);
-            const { label, value } = selectedData;
-
-            const currentOption = activeDropdown.querySelector(`option[value="${activeDropdown.value}"]`);
-            currentOption.innerHTML = `${currentOption.textContent.split(" - ")[0]} - <span class="answer-text">Rate Answer: ${label} ✓</span>`;
-
-            userSelections[activeDropdown.value] = {
-              question: currentOption.textContent.split(" - ")[0],
-              label,
-              score: value,
-            };
-
-            const allOptions = [...activeDropdown.options];
-            const answeredOptions = allOptions.filter((opt) => opt.innerHTML.includes("Rate Answer:"));
-
-            if (answeredOptions.length === allOptions.length - 1) {
-              activeDropdown.querySelector("option").textContent = `${
-                activeDropdown.querySelector("option").textContent.split(" (")[0]
-              } (Completed Answering)`;
-            }
-
-            activeDropdown.value = "";
-          }
-
-          popup.style.display = "none";
-          overlay.style.display = "none";
-        });
-
-        submitButton.addEventListener("click", (e) => {
-          e.preventDefault();
-
-          const uncompletedDropdowns = [...dropdowns].filter(
-            (dropdown) => !dropdown.querySelector("option:first-child").textContent.includes("Completed Answering")
-          );
-
-          if (uncompletedDropdowns.length > 0) {
-            alert("Please complete all the sections before submitting!");
-          } else {
-            const totalScore = Object.values(userSelections).reduce((acc, curr) => acc + curr.score, 0);
-            const qualityLabel = getQualityLabel(totalScore);
-
-            // Display the result dynamically
-            const resultDisplay = document.getElementById("resultDisplay");
-            const qualityResult = document.getElementById("qualityResult");
-
-            qualityResult.textContent = qualityLabel;
-            resultDisplay.classList.remove("hidden"); // Show result below submit button
-
-            generatePDF(totalScore, qualityLabel);
-            generateExcel(totalScore, qualityLabel);
-
-            document.getElementById("downloadLinks").classList.remove("hidden");
-          }
-        });
-
-        function getQualityLabel(score) {
-          if (score <= 3) return "Prime Quality";
-          if (score <= 5) return "High Quality";
-          if (score <= 8) return "Good Quality";
-          if (score <= 11) return "Acceptable";
-          if (score <= 15) return "Marginal";
-          if (score <= 19) return "Poor Quality";
-          return "Unacceptable";
-        }
-
-        function getDetailedFormData() {
-          const formData = {
-            "General Appearance": [],
-            Eyes: [],
-            Gills: [],
           };
-
-          Object.entries(userSelections).forEach(([field, { question, label, score }]) => {
-            const section = getSectionName(field);
-            formData[section].push({ question, label, score });
-          });
-
-          return formData;
-        }
-
-        function getSectionName(field) {
-          if (["brightness", "bloodspot", "stiffness", "belly", "smellofthefish"].includes(field)) {
-            return "General Appearance";
-          } else if (["clarity", "shape"].includes(field)) {
-            return "Eyes";
-          } else if (["colour", "smell"].includes(field)) {
-            return "Gills";
-          }
-          return "Other";
-        }
-
-        function generatePDF(totalScore, qualityLabel) {
-          const formData = getDetailedFormData();
-          const doc = new jsPDF();
-          doc.setFontSize(16);
-          doc.text("FISH ASSESSMENT FORM -  SUBMISSION SUMMARY", 10, 10);
-          doc.setFontSize(12);
-          let y = 20;
-
-          Object.entries(formData).forEach(([section, questions]) => {
-            doc.setFont("helvetica", "bold");
-            doc.text(section.toUpperCase(), 10, y);
-            y += 10;
-            questions.forEach((question, index) => {
-              doc.setFont("helvetica", "normal");
-              doc.text(`${index + 1}. ${question.question}: ${question.label} (Score: ${question.score})`, 10, y);
-              y += 10;
-            });
-            y += 5;
-          });
-
-          // Add bold Total Score and Quality
-          doc.setFont("helvetica", "bold");
-          doc.text(`Total Score: ${totalScore}`, 10, y);
-          y += 10;
-          doc.text(`Quality: ${qualityLabel}`, 10, y);
-
-          const pdfBlob = doc.output("blob");
-          const pdfURL = URL.createObjectURL(pdfBlob);
-          document.getElementById("downloadPDF").href = pdfURL;
-        }
-
-        function generateExcel(totalScore, qualityLabel) {
-          const formData = getDetailedFormData();
-          const workbook = XLSX.utils.book_new();
-          const worksheetData = [["Field", "Question", "Answer", "Score"]];
-
-          // Add survey data to worksheet
-          Object.entries(formData).forEach(([section, questions]) => {
-            questions.forEach((question) => {
-              worksheetData.push([section, question.question, question.label, question.score]);
-            });
-          });
-
-          // Add Total Score and Quality rows
-          worksheetData.push(["", "Total Score", totalScore, ""]);
-          worksheetData.push(["", "Quality", qualityLabel, ""]);
-
-          const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-          // Apply center alignment and bold styling for Total Score and Quality
-          const range = XLSX.utils.decode_range(worksheet["!ref"]);
-
-          for (let R = range.s.r; R <= range.e.r; ++R) {
-            for (let C = range.s.c; C <= range.e.c; ++C) {
-              const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-              if (!worksheet[cellAddress]) continue;
-
-              // Apply center alignment for all cells
-              if (!worksheet[cellAddress].s) worksheet[cellAddress].s = {};
-              worksheet[cellAddress].s.alignment = { horizontal: "center", vertical: "center" };
-
-              // Apply bold for Total Score and Quality rows
-              if (R >= worksheetData.length - 2) {
-                // Bold last two rows
-                worksheet[cellAddress].s.font = { bold: true };
-              }
+          
+          xhr.onload = async () => {
+            if (xhr.status === 200) {
+              const data = JSON.parse(xhr.responseText);
+              resultData.textContent = JSON.stringify(data, null, 2);
+              resultDiv.classList.remove("hidden");
+              
+              // Hide progress bar after completion
+              setTimeout(() => {
+                progressBar.style.display = 'none';
+                progressText.style.display = 'none';
+              }, 1000);
             }
-          }
-
-          // Add worksheet to the workbook
-          XLSX.utils.book_append_sheet(workbook, worksheet, "Fish Assessment Form");
-
-          // Generate Excel file and download link
-          const wbArrayBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array", cellStyles: true });
-          const excelBlob = new Blob([wbArrayBuffer], { type: "application/octet-stream" });
-
-          const excelURL = URL.createObjectURL(excelBlob);
-          document.getElementById("downloadExcel").href = excelURL;
-          document.getElementById("downloadExcel").download = "FishAssessment_Form_Submission.xlsx";
+          };
+          
+          xhr.send(formData);
+        } catch (error) {
+          console.error("Error:", error);
         }
+      });
 
-        // Function to display the result
-        function showResult(totalScore, qualityLabel) {
-          const resultDiv = document.getElementById("resultDisplay");
-          const emoji = getEmojiForQuality(qualityLabel);
-          const color = getColorForQuality(qualityLabel);
-
-          resultDiv.innerHTML = `
-    <p style="font-size: 1.5rem; font-weight: bold;">
-      Result (Quality): ${qualityLabel} ${emoji}
-    </p>
-  `;
-
-          // Apply interactive styles
-          resultDiv.style.backgroundColor = color;
-          resultDiv.style.padding = "10px";
-          resultDiv.style.borderRadius = "10px";
-          resultDiv.style.textAlign = "center";
-          resultDiv.style.color = "#fff";
-          resultDiv.style.transition = "all 0.5s ease";
-          resultDiv.classList.remove("hidden"); // Make it visible
+      // Start Real-Time Video Analysis
+      startVideo.addEventListener("click", async () => {
+        if (!streaming) {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          videoStream.srcObject = stream;
+          streaming = true;
+          analyzeFrame();
         }
-
-        // Map quality levels to emojis
-        function getEmojiForQuality(quality) {
-          switch (quality) {
-            case "Prime Quality":
-            case "High Quality":
-              return "😊"; // Happy mood
-            case "Good Quality":
-            case "Acceptable":
-              return "😐"; // Neutral mood
-            case "Marginal":
-            case "Poor Quality":
-              return "😞"; // Sad mood
-            case "Unacceptable":
-              return "😡"; // Angry mood
-            default:
-              return "❓"; // Default
-          }
-        }
-
-        // Map quality levels to background colors
-        function getColorForQuality(quality) {
-          switch (quality) {
-            case "Prime Quality":
-            case "High Quality":
-              return "green"; // Happy
-            case "Good Quality":
-            case "Acceptable":
-              return "orange"; // Neutral
-            case "Marginal":
-            case "Poor Quality":
-              return "red"; // Sad
-            case "Unacceptable":
-              return "darkred"; // Angry
-            default:
-              return "gray"; // Default
-          }
-        }
-
-        // Update submitButton to display result dynamically
-        submitButton.addEventListener("click", (e) => {
-          e.preventDefault();
-
-          const totalScore = Object.values(userSelections).reduce((acc, curr) => acc + curr.score, 0);
-          const qualityLabel = getQualityLabel(totalScore);
-
-          showResult(totalScore, qualityLabel); // Call the result display function
-          generatePDF(totalScore, qualityLabel);
-          generateExcel(totalScore, qualityLabel);
-
-          document.getElementById("downloadLinks").classList.remove("hidden");
-        });
       });
     </script>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+      <h2 class="text-xl font-bold mb-4" id="popupTitle">Select an Option</h2>
+      <form id="popupForm">
+        <div id="popupOptions" class="popup-options"></div>
+        <button type="button" id="closePopup" class="mt-4 px-4 py-2 rounded bg-red-600 text-white">Submit</button>
+      </form>
+    </div>
   </body>
 </html>
