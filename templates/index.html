@@ -20,15 +20,55 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+      .semi-transparent-container {
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.05
+        ); /* Semi-transparent white background */
+        padding: 20px;
+        border-radius: 10px; /* Rounded corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for a raised effect */
+        text-align: center; /* Center the text */
+        width: 100%; /* Ensure full container use */
+        max-width: 400px; /* Constrain width for better appearance */
+        align-items: center;
+        justify-items: center;
+      }
+
+      .not-available-image {
+        max-width: 5rem; /* Resize the image for a reasonable size */
+        height: auto;
+        /* margin-bottom: 5px; Space between image and text */
+      }
+
+      .not-available-text {
+        font-size: 0.5rem; /* Reasonably sized text */
+        color: #f0f0f0; /* Darker text for better contrast */
+      }
+      .not-available {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 14px; /* Optional rounded corners */
+        padding: 20px;
+        background-color: rgba(136, 136, 136, 0.05);
+      }
       .pred-data {
         margin-top: 2.5rem;
         margin-bottom: 1.5rem;
       }
 
       .legend-container {
+        position: relative;
         display: flex;
-        flex-direction: row;
-        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        min-height: 200px; /* Adjust as necessary */
+        border-radius: 14px; /* Optional rounded corners */
+        background-color: rgba(136, 136, 136, 0.05);
       }
 
       .legend-item {
@@ -580,9 +620,8 @@
         </div>
 
         <!-- Quality Legend -->
-        <div id="qualityLegend" class="legend-container mt-10 font-semibold">
-          <h2>Quality Legend:</h2>
-        </div>
+        <h2 class="mt-12 mb-5 font-semibold">Quality Legend:</h2>
+        <div id="qualityLegend" class="legend-container font-semibold"></div>
       </div>
 
       <!-- Right Column: Charts -->
@@ -778,10 +817,13 @@
         }
 
         legendContainer.innerHTML = `
-            <div class="legend-item">
-                <span>No predictions available. Please upload or capture an image.</span>
+        <div class="not-available">
+            <div class="semi-transparent-container">
+                <img src="{{ url_for('static', filename='assets/empty-box.png') }}" class="not-available-image" alt="No data">
+                <span class="not-available-text">Empty or no predictions available. Please upload or capture an image.</span>
             </div>
-        `;
+        </div>
+    `;
       }
       function generateShade(baseColor, factor) {
         const hexToRgb = (hex) => {
@@ -834,13 +876,27 @@
         return `${classLabel} (${confidencePercentage}%)`;
       }
 
+      function generateDistinctShade(index) {
+        const baseColor = baseColors[index % baseColors.length]; // Cycle through base colors for each quality
+        const shadeFactor = 0.5 + (index % 5) * 0.15; // Adjust shade factor dynamically
+        return generateShade(baseColor, shadeFactor);
+      }
+
       function getContrastColor(r, g, b) {
         // Calculate brightness based on perceived luminance formula
         const brightness = (r * 299 + g * 587 + b * 114) / 1000;
         return brightness > 128 ? "black" : "white";
       }
 
-      const baseColor = "#FF0000"; // Base color (red)
+      const baseColors = [
+        "#FF0000",
+        "#FFA500",
+        "#FFD700",
+        "#32CD32",
+        "#4169E1",
+        "#800080",
+        "#FF1493",
+      ]; // Array of distinct base colors
       const classShades = {}; // Store shades for each class
 
       function generateQualityLegend(predictions) {
@@ -855,26 +911,45 @@
         legendContainer.innerHTML = "";
 
         if (!predictions || predictions.length === 0) {
-          setDefaultState(); // Set default message when no predictions
+          setDefaultState();
           return;
         }
+
+        const allowedQualities = [
+          "Prime Quality",
+          "Marginal",
+          "Poor",
+          "Unacceptable",
+          "Acceptable",
+          "Good Quality",
+          "High Quality",
+          "Fresh",
+          "Extremely Fresh",
+          "Spoiled"
+        ];
 
         const labelCounts = {};
 
         predictions.forEach((prediction) => {
           const label = prediction.class;
-          labelCounts[label] = (labelCounts[label] || 0) + 1;
+          const matchingQuality = allowedQualities.find((quality) =>
+            label.includes(quality)
+          );
 
-          if (!classShades[label]) {
-            const index = Object.keys(classShades).length;
-            const shadeFactor = 0.6 + index * 0.1;
-            classShades[label] = generateShade(baseColor, shadeFactor);
+          if (matchingQuality) {
+            labelCounts[matchingQuality] =
+              (labelCounts[matchingQuality] || 0) + 1;
+
+            if (!classShades[matchingQuality]) {
+              const index = Object.keys(classShades).length;
+              classShades[matchingQuality] = generateDistinctShade(index); // Generate distinct shade
+            }
           }
         });
 
-        Object.keys(labelCounts).forEach((label) => {
-          const count = labelCounts[label];
-          const shade = classShades[label];
+        Object.keys(labelCounts).forEach((quality) => {
+          const count = labelCounts[quality];
+          const shade = classShades[quality];
 
           const legendItem = document.createElement("div");
           legendItem.classList.add("legend-item");
@@ -884,13 +959,17 @@
           colorBox.classList.add("color-box");
 
           const labelText = document.createElement("span");
-          labelText.innerText = `${label} (${count})`;
+          labelText.innerText = `${quality} (${count})`;
 
           legendItem.appendChild(colorBox);
           legendItem.appendChild(labelText);
 
           legendContainer.appendChild(legendItem);
         });
+
+        if (Object.keys(labelCounts).length === 0) {
+          setDefaultState();
+        }
       }
 
       function displayImageWithBoundingBoxes(
@@ -920,8 +999,12 @@
 
             // Assign a shade to class if not already assigned
             if (!classShades[label]) {
-              const shadeFactor = 0.6 + index * 0.1; // Adjust brightness per class
-              classShades[label] = generateShade(baseColor, shadeFactor);
+              const colorIndex = index % baseColors.length; // Cycle through base colors
+              const shadeFactor = 0.6 + (index % 5) * 0.15; // Adjust brightness per class dynamically
+              classShades[label] = generateShade(
+                baseColors[colorIndex],
+                shadeFactor
+              );
             }
 
             const shade = classShades[label]; // Get shade for this class
