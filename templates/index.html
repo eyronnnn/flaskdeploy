@@ -20,6 +20,21 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+      #imageWrapper canvas {
+        max-width: 100%; /* Ensure canvas does not overflow */
+        height: auto; /* Maintain aspect ratio */
+        border-radius: 1rem;
+      }
+      #resultDiv {
+        width: 100%; /* Optional: Make resultDiv take full width of its container */
+        max-width: 640px; /* Constrain width of resultDiv for consistency */
+        margin: 0 auto; /* Center it horizontally */
+      }
+      #imageWrapper {
+        display: flex;
+        justify-content: center; /* Center the canvas within imageWrapper */
+        align-items: center;
+      }
       body {
         font-family: "Poppins", sans-serif;
         background-color: #000000;
@@ -809,7 +824,12 @@
       const baseColor = "#FF0000"; // Base color (red)
       const classShades = {}; // Store shades for each class
 
-      function displayImageWithBoundingBoxes(imageUrl, predictions) {
+      function displayImageWithBoundingBoxes(
+        imageUrl,
+        predictions,
+        targetWidth = 640,
+        targetHeight = 640
+      ) {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         const img = new Image();
@@ -847,27 +867,49 @@
             ctx.lineWidth = 3;
             ctx.strokeRect(x - width / 2, y - height / 2, width, height);
 
-            // Draw label background
+            // Decide whether to place the label on the top or side
             const text = `${label} (${(confidence * 100).toFixed(1)}%)`;
-            ctx.font = "16px Arial";
+            ctx.font = "bold 14px Arial";
             const textWidth = ctx.measureText(text).width;
-            const textHeight = 18; // Approximate text height
-            ctx.fillStyle = shade;
-            ctx.fillRect(
-              x - width / 2,
-              y - height / 2 - textHeight - 4,
-              textWidth + 6,
-              textHeight + 4
-            );
+            const textHeight = 12; // Approximate text height
+            const isVerticalBox = height > width;
 
-            // Draw label text
-            ctx.fillStyle = textColor;
-            ctx.fillText(text, x - width / 2 + 3, y - height / 2 - 8);
+            if (isVerticalBox) {
+              // Place the label on the left side of the box
+              ctx.save();
+              ctx.translate(x - width / 2, y + height / 2); // Move to the left of the box
+              ctx.rotate(-Math.PI / 2); // Rotate the label vertically to fit left
+              ctx.fillStyle = shade; // Background color
+              ctx.fillRect(0, -textHeight + 10 / 2, textWidth + 6, textHeight + 6); // 
+              ctx.fillStyle = textColor; // Text color
+              ctx.fillText(text, 2, textHeight / 2);    // padding of text
+              ctx.restore();
+            } else {
+              // Place the label on top of the box (unchanged)
+              ctx.fillStyle = shade;
+              ctx.fillRect(
+                x - width / 2,
+                y - height / 2 - textHeight - 4,
+                textWidth + 6,
+                textHeight + 4
+              );
+              ctx.fillStyle = textColor;
+              ctx.fillText(text, x - width / 2 + 3, y - height / 2 - 8);
+            }
           });
 
+          // Resize canvas proportionally
+          const resizedCanvas = document.createElement("canvas");
+          const resizedCtx = resizedCanvas.getContext("2d");
+          resizedCanvas.width = targetWidth;
+          resizedCanvas.height = targetHeight;
+
+          resizedCtx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+
+          // Ensure canvas fits within the container
           const imageWrapper = document.getElementById("imageWrapper");
           imageWrapper.innerHTML = ""; // Clear previous image
-          imageWrapper.appendChild(canvas);
+          imageWrapper.appendChild(resizedCanvas); // Append resized canvas
         };
 
         img.src = imageUrl;
