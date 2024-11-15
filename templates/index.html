@@ -38,7 +38,7 @@
       }
 
       .not-available-image {
-        max-width: 5rem; /* Resize the image for a reasonable size */
+        max-width: auto; /* Resize the image for a reasonable size */
         height: auto;
         /* margin-bottom: 5px; Space between image and text */
       }
@@ -1033,22 +1033,31 @@
         return `${classLabel} (${confidencePercentage}%)`;
       }
 
-      // Start Webcam
-      startWebcam.addEventListener("click", async () => {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-          webcam.srcObject = stream;
-          webcam.classList.remove("hidden");
-          capture.classList.remove("hidden");
+      let stream = null; // To store the media stream
 
-          //   displayImageWithBoundingBoxes(imageUrl, predictionData);
-        } catch (error) {
-          console.error("Webcam access error:", error);
-          alert(
-            "Failed to access the camera. Please allow permissions and try again."
-          );
+      startWebcam.addEventListener("click", async () => {
+        if (stream) {
+          // If the webcam is already running, stop it
+          const tracks = stream.getTracks();
+          tracks.forEach((track) => track.stop()); // Stop all tracks (video/audio)
+          webcam.classList.add("hidden"); // Hide the webcam video element
+          capture.classList.add("hidden"); // Hide the capture button (optional)
+          startWebcam.textContent = "Start Webcam"; // Change button text to "Start Webcam"
+          stream = null; // Reset the stream
+        } else {
+          // If the webcam is not running, start it
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            webcam.srcObject = stream;
+            webcam.classList.remove("hidden"); // Show the webcam video element
+            capture.classList.remove("hidden"); // Show the capture button (optional)
+            startWebcam.textContent = "Stop Webcam"; // Change button text to "Stop Webcam"
+          } catch (error) {
+            console.error("Webcam access error:", error);
+            alert(
+              "Failed to access the camera. Please allow permissions and try again."
+            );
+          }
         }
       });
 
@@ -1218,20 +1227,36 @@
           const data = await response.json();
           resultData.textContent = JSON.stringify(data, null, 2);
           resultDiv.classList.remove("hidden");
+
+          displayImageWithBoundingBoxes(imageUrl, predictionData);
         } catch (error) {
           console.error("Error:", error);
         }
       });
 
-      // Start Real-Time Video Analysis
+      // Start Real-Time Video Analysis 
       startVideo.addEventListener("click", async () => {
-        if (!streaming) {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-          videoStream.srcObject = stream;
-          streaming = true;
-          analyzeFrame();
+        if (streaming) {
+          // If streaming is active, stop the video and the analysis
+          const tracks = stream.getTracks();
+          tracks.forEach((track) => track.stop()); // Stop all tracks (video/audio)
+          videoStream.srcObject = null; // Remove the video stream from the video element
+          streaming = false; // Update the streaming state
+          startVideo.textContent = "Start Real-Time Video Analysis"; // Change button text to "Start"
+        } else {
+          // If streaming is not active, start the video stream and analysis
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            videoStream.srcObject = stream; // Set the stream to the video element
+            streaming = true; // Update the streaming state
+            startVideo.textContent = "Stop Real-Time Video Analysis"; // Change button text to "Stop"
+            analyzeFrame(); // Start analyzing video frames (you must define this function)
+          } catch (error) {
+            console.error("Error accessing the webcam:", error);
+            alert(
+              "Failed to access the camera. Please allow permissions and try again."
+            );
+          }
         }
       });
     </script>
