@@ -742,6 +742,7 @@
 
       let streaming = false;
 
+      //   START OF HELPER FUNCTIONS ZONE
       function generateShade(baseColor, factor) {
         const hexToRgb = (hex) => {
           let bigint = parseInt(hex.slice(1), 16);
@@ -899,7 +900,68 @@
 
         img.src = imageUrl;
       }
-      
+
+      // Start Webcam
+      startWebcam.addEventListener("click", async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          webcam.srcObject = stream;
+          webcam.classList.remove("hidden");
+          capture.classList.remove("hidden");
+
+        //   displayImageWithBoundingBoxes(imageUrl, data.predictions);
+        } catch (error) {
+          console.error("Webcam access error:", error);
+          alert(
+            "Failed to access the camera. Please allow permissions and try again."
+          );
+        }
+      });
+
+      async function analyzeFrame() {
+        if (!streaming) return;
+
+        const videoCanvas = document.createElement("canvas");
+        videoCanvas.width = 640;
+        videoCanvas.height =
+          (640 / videoStream.videoWidth) * videoStream.videoHeight;
+        const videoContext = videoCanvas.getContext("2d");
+        videoContext.drawImage(
+          videoStream,
+          0,
+          0,
+          videoCanvas.width,
+          videoCanvas.height
+        );
+
+        videoCanvas.toBlob(async (blob) => {
+          const formData = new FormData();
+          formData.append("file", blob, "frame.jpg");
+
+          try {
+            const response = await fetch("/upload-single-image", {
+              method: "POST",
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+
+            // stringifying the json data.
+            const data = await response.json();
+            videoResultData.textContent = JSON.stringify(data, null, 2);
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        }, "image/jpeg");
+
+        setTimeout(analyzeFrame, 500); // Process a frame every 500ms, to not bombard the Inference API Endpoint
+      }
+      // END OF HELPER FUNCTIONS ZONE
+
       // Tab Switching
       const allTabs = [uploadTab, captureTab, batchTab, videoTab];
       const sections = [uploadForm, captureSection, batchForm, videoSection];
@@ -917,25 +979,6 @@
           });
           resultDiv.classList.add("hidden"); // Hide result when switching tabs
         });
-      });
-
-      // Start Webcam
-      startWebcam.addEventListener("click", async () => {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-          webcam.srcObject = stream;
-          webcam.classList.remove("hidden");
-          capture.classList.remove("hidden");
-
-          displayImageWithBoundingBoxes(imageUrl, data.predictions);
-        } catch (error) {
-          console.error("Webcam access error:", error);
-          alert(
-            "Failed to access the camera. Please allow permissions and try again."
-          );
-        }
       });
 
       // Capture Image
@@ -967,7 +1010,6 @@
             const imageUrl = URL.createObjectURL(file);
 
             displayImageWithBoundingBoxes(imageUrl, data.predictions);
-
           } catch (error) {
             console.error("Error uploading snapshot:", error);
             alert("Snapshot upload failed.");
@@ -1003,7 +1045,6 @@
         }
       });
 
-
       // Batch Form Submission
       batchForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -1038,47 +1079,6 @@
           analyzeFrame();
         }
       });
-
-      async function analyzeFrame() {
-        if (!streaming) return;
-
-        const videoCanvas = document.createElement("canvas");
-        videoCanvas.width = 640;
-        videoCanvas.height =
-          (640 / videoStream.videoWidth) * videoStream.videoHeight;
-        const videoContext = videoCanvas.getContext("2d");
-        videoContext.drawImage(
-          videoStream,
-          0,
-          0,
-          videoCanvas.width,
-          videoCanvas.height
-        );
-
-        videoCanvas.toBlob(async (blob) => {
-          const formData = new FormData();
-          formData.append("file", blob, "frame.jpg");
-
-          try {
-            const response = await fetch("/upload-single-image", {
-              method: "POST",
-              body: formData,
-            });
-
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-
-            const data = await response.json();
-            videoResultData.textContent = JSON.stringify(data, null, 2);
-          } catch (error) {
-            console.error("Error:", error);
-          }
-        }, "image/jpeg");
-
-        setTimeout(analyzeFrame, 500); // Process a frame every 500ms, to not bombard the Inference API Endpoint
-        
-      }
     </script>
   </body>
 </html>
