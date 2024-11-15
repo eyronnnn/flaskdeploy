@@ -20,11 +20,16 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+      .pred-data {
+        margin-top: 2.5rem;
+        margin-bottom: 1.5rem;
+      }
+
       .quality-legend {
         background-color: #8b0000; /* Dark red */
         color: white;
         padding: 20px;
-        border-radius: 8px;
+        border-radius: 0.5rem;
         width: 100%;
         font-family: Arial, sans-serif;
       }
@@ -445,6 +450,7 @@
                 max-width: 800px;
                 background-color: #1f1f1f;
                 color: #ff7f7f;
+                /* videoResultData */
               "
             ></pre>
           </div>
@@ -545,6 +551,7 @@
         <div id="resultDiv" class="mt-4 hidden">
           <h2 class="text-lg font-semibold">Inference Result:</h2>
           <div id="imageWrapper" class="mt-4 flex justify-center"></div>
+          <h2 class="pred-data text-lg font-semibold">Prediction Data:</h2>
           <pre
             id="resultData"
             class="p-4 rounded-lg overflow-auto text-sm shadow-lg"
@@ -552,7 +559,7 @@
         </div>
 
         <!-- Quality Legend -->
-        <div class="quality-legend mt-10 font-bold">
+        <div class="quality-legend mt-10 font-semibold">
           <h2>Quality Legend:</h2>
         </div>
       </div>
