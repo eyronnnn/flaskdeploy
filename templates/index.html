@@ -764,10 +764,25 @@
       let streaming = false;
 
       document.addEventListener("DOMContentLoaded", () => {
-        // default state of the site
+        // Initialize default state on page load
+        setDefaultState();
       });
 
       //   START OF HELPER FUNCTIONS ZONE
+      function setDefaultState() {
+        const legendContainer = document.getElementById("qualityLegend");
+
+        if (!legendContainer) {
+          console.error("Element with ID 'qualityLegend' not found.");
+          return;
+        }
+
+        legendContainer.innerHTML = `
+            <div class="legend-item">
+                <span>No predictions available. Please upload or capture an image.</span>
+            </div>
+        `;
+      }
       function generateShade(baseColor, factor) {
         const hexToRgb = (hex) => {
           let bigint = parseInt(hex.slice(1), 16);
@@ -794,6 +809,31 @@
         return rgbToHex(r, g, b);
       }
 
+      // Function to filter and format the label dynamically
+      function filterLabel(rawLabel, confidence) {
+        const confidencePercentage = (confidence * 100).toFixed(1); // Format confidence as percentage
+
+        let processedLabel = rawLabel.replaceAll(" ", "");
+
+        // Split the raw label into parts by " - "
+        const labelParts = processedLabel.split("-");
+
+        // Extract the first and last parts, ignoring the middle (numeric) part
+        let classLabel = labelParts[0]; // e.g., "TILAPIA", "SKIN", "EYE"
+        let qualityLabel = "";
+
+        if (labelParts.length > 2) {
+          // If 3 parts, extract class and quality, ignore the middle numeric part
+          qualityLabel = labelParts[2].replace("-", ""); // e.g., "Acceptable"
+        } else if (labelParts.length === 2) {
+          // If 2 parts, extract class and quality
+          qualityLabel = labelParts[1].replace("-", ""); // e.g., "Excellent"
+        }
+
+        // Return formatted string with confidence
+        return `${classLabel} (${confidencePercentage}%)`;
+      }
+
       function getContrastColor(r, g, b) {
         // Calculate brightness based on perceived luminance formula
         const brightness = (r * 299 + g * 587 + b * 114) / 1000;
@@ -811,7 +851,13 @@
           return;
         }
 
-        legendContainer.innerHTML = ""; // Clear previous legend content
+        // Clear previous content
+        legendContainer.innerHTML = "";
+
+        if (!predictions || predictions.length === 0) {
+          setDefaultState(); // Set default message when no predictions
+          return;
+        }
 
         const labelCounts = {};
 
@@ -845,31 +891,6 @@
 
           legendContainer.appendChild(legendItem);
         });
-      }
-
-      // Function to filter and format the label dynamically
-      function filterLabel(rawLabel, confidence) {
-        const confidencePercentage = (confidence * 100).toFixed(1); // Format confidence as percentage
-
-        let processedLabel = rawLabel.replaceAll(" ", "");
-
-        // Split the raw label into parts by " - "
-        const labelParts = processedLabel.split("-");
-
-        // Extract the first and last parts, ignoring the middle (numeric) part
-        let classLabel = labelParts[0]; // e.g., "TILAPIA", "SKIN", "EYE"
-        let qualityLabel = "";
-
-        if (labelParts.length > 2) {
-          // If 3 parts, extract class and quality, ignore the middle numeric part
-          qualityLabel = labelParts[2].replace("-", ""); // e.g., "Acceptable"
-        } else if (labelParts.length === 2) {
-          // If 2 parts, extract class and quality
-          qualityLabel = labelParts[1].replace("-", ""); // e.g., "Excellent"
-        }
-
-        // Return formatted string with confidence
-        return `${classLabel} (${confidencePercentage}%)`;
       }
 
       function displayImageWithBoundingBoxes(
