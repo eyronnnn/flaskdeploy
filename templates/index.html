@@ -21,10 +21,29 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
+      #chevronIcon {
+        font-size: 18px; /* Adjust size */
+        margin-left: 1rem;
+      }
+
+      /* Glowing effect on hover */
+      #chevronIcon:hover {
+        box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.3); /* White glow effect */
+      }
+
+      #inferenceResult {
+        display: flex; /* Default visible */
+        transition: all 0.3s ease-in-out; /* Smooth hiding/showing */
+      }
+
       body {
         font-family: "Poppins", sans-serif;
-        background-image: url('https://papers.co/wallpaper/papers.co-vd85-scifi-web-by-emilwidlund-dark-pattern-abstract-art-29-wallpaper.jpg');
+        background-image: url("https://papers.co/wallpaper/papers.co-vd85-scifi-web-by-emilwidlund-dark-pattern-abstract-art-29-wallpaper.jpg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -119,6 +138,7 @@
         overflow: hidden; /* Initially hide both scrollbars */
         scrollbar-width: thin; /* Firefox: thin scrollbar */
         scrollbar-color: rgba(136, 136, 136, 0.5) #f0f0f0; /* Firefox: semi-transparent thumb and track */
+        font-size: xx-small;
       }
 
       /* WebKit-based browsers like Brave, Chrome, Edge */
@@ -341,7 +361,7 @@
         left: 80%;
         animation-delay: 6s;
       }
-      
+
       .popup {
         position: absolute;
         top: 20%;
@@ -392,7 +412,7 @@
 
       /* Enhanced fluid animation */
       .progress-bar::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -409,20 +429,30 @@
           transparent
         );
         background-size: 20px 20px;
-        animation: progress-bar-stripes 2s linear infinite, /* Increased from 1s to 2s */
-                   progress-bar-flow 5s ease infinite; /* Increased from 3s to 5s */
+        animation: progress-bar-stripes 2s linear infinite,
+          /* Increased from 1s to 2s */ progress-bar-flow 5s ease infinite; /* Increased from 3s to 5s */
         z-index: 1;
       }
 
       @keyframes progress-bar-stripes {
-        0% { background-position: 0 0; }
-        100% { background-position: 20px 0; }
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: 20px 0;
+        }
       }
 
       @keyframes progress-bar-flow {
-        0% { opacity: 0.3; } /* Reduced from 0.5 to 0.3 */
-        50% { opacity: 0.8; } /* Reduced from 1 to 0.8 */
-        100% { opacity: 0.3; } /* Reduced from 0.5 to 0.3 */
+        0% {
+          opacity: 0.3;
+        } /* Reduced from 0.5 to 0.3 */
+        50% {
+          opacity: 0.8;
+        } /* Reduced from 1 to 0.8 */
+        100% {
+          opacity: 0.3;
+        } /* Reduced from 0.5 to 0.3 */
       }
 
       .progress-text {
@@ -437,34 +467,58 @@
   <body>
     <div class="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-4 p-6">
       <!-- Center Column: Input Forms (Moved to the Left) -->
-      <div class="bg-[#1E1E1E] shadow-box rounded-3xl p-6 max-w-2xl mx-auto mt-20 transition-all duration-300" style="transition: all 0.3s ease; box-shadow: 0 0 0 rgba(255, 255, 255, 0)" 
-      onmouseover="this.style.boxShadow='0 0 30px rgba(255, 255, 255, 0.8)'" 
-      onmouseout="this.style.boxShadow='0 0 0 rgba(255, 255, 255, 0)'">
-        <h2 class="text-center text-4xl font-bold mb-4 mt-10 mb-10">Fish Assessment Form</h2>
+      <div
+        class="bg-[#1E1E1E] shadow-box rounded-3xl p-6 max-w-2xl mx-auto mt-20 transition-all duration-300"
+        style="
+          transition: all 0.3s ease;
+          box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+        "
+        onmouseover="this.style.boxShadow='0 0 30px rgba(255, 255, 255, 0.8)'"
+        onmouseout="this.style.boxShadow='0 0 0 rgba(255, 255, 255, 0)'"
+      >
+        <h2 class="text-center text-4xl font-bold mb-4 mt-10 mb-10">
+          Fish Assessment Form
+        </h2>
         <p class="mb-10 text-center text-sm">
-          Assess fish quality by evaluating appearance, gills, and eyes. Complete all sections.
+          Assess fish quality by evaluating appearance, gills, and eyes.
+          Complete all sections.
         </p>
 
         <form>
           <div class="mb-4">
-            <label for="generalAppearance" class="block text-sm font-medium">General Appearance</label>
+            <label for="generalAppearance" class="block text-sm font-medium"
+              >General Appearance</label
+            >
             <select
               id="generalAppearance"
               class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]"
             >
-              <option value="" disabled selected>Skin, Bloodspots, Stiffness and Smell (Please Select)</option>
-              <option value="brightness">Rate the brightness of the skin</option>
-              <option value="bloodspot">Scale of bloodspots found on the gills</option>
+              <option value="" disabled selected>
+                Skin, Bloodspots, Stiffness and Smell (Please Select)
+              </option>
+              <option value="brightness">
+                Rate the brightness of the skin
+              </option>
+              <option value="bloodspot">
+                Scale of bloodspots found on the gills
+              </option>
               <option value="stiffness">Rate the stiffness of the fish</option>
               <option value="belly">Firmness of the belly</option>
-              <option value="smellofthefish">Identify the smell of the fish</option>
+              <option value="smellofthefish">
+                Identify the smell of the fish
+              </option>
             </select>
           </div>
 
           <div class="mb-4">
             <label for="eyes" class="block text-sm font-medium">Eyes</label>
-            <select id="eyes" class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]">
-              <option value="" disabled selected>Clarity & Shape (Please Select)</option>
+            <select
+              id="eyes"
+              class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]"
+            >
+              <option value="" disabled selected>
+                Clarity & Shape (Please Select)
+              </option>
               <option value="clarity">Clear Eyes</option>
               <option value="shape">Sunken or Bulging</option>
             </select>
@@ -472,38 +526,57 @@
 
           <div class="mb-4">
             <label for="gills" class="block text-sm font-medium">Gills</label>
-            <select id="gills" class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]">
-              <option value="" disabled selected>Colour & Smell (Please Select)</option>
+            <select
+              id="gills"
+              class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]"
+            >
+              <option value="" disabled selected>
+                Colour & Smell (Please Select)
+              </option>
               <option value="colour">Check color of gills</option>
               <option value="smell">Identify smell of gills</option>
             </select>
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             class="w-full py-2 px-4 rounded-2xl hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
-            style="background: linear-gradient(to right, #8b0000, #b22222); box-shadow: 0 4px 6px -1px rgba(139, 0, 0, 0.3), 0 2px 4px -1px rgba(178, 34, 34, 0.2);"
+            style="
+              background: linear-gradient(to right, #8b0000, #b22222);
+              box-shadow: 0 4px 6px -1px rgba(139, 0, 0, 0.3),
+                0 2px 4px -1px rgba(178, 34, 34, 0.2);
+            "
           >
             Submit
           </button>
 
           <div id="resultDisplay" class="mt-4 hidden">
-            <h3 class="text-lg font-semibold">Result (Quality): <span id="qualityResult"></span></h3>
+            <h3 class="text-lg font-semibold">
+              Result (Quality): <span id="qualityResult"></span>
+            </h3>
           </div>
 
-            <div id="downloadLinks" class="mt-4 hidden">
-              <h3 class="text-lg font-semibold mb-2">Download your files:</h3>
-              <a id="downloadPDF" href="#" class="block text-blue-500 hover:underline">Download PDF</a>
-              <a id="downloadExcel" href="#" class="block text-blue-500 hover:underline">Download Excel</a>
-            </div>
-          </form>
+          <div id="downloadLinks" class="mt-4 hidden">
+            <h3 class="text-lg font-semibold mb-2">Download your files:</h3>
+            <a
+              id="downloadPDF"
+              href="#"
+              class="block text-blue-500 hover:underline"
+              >Download PDF</a
+            >
+            <a
+              id="downloadExcel"
+              href="#"
+              class="block text-blue-500 hover:underline"
+              >Download Excel</a
+            >
+          </div>
+        </form>
       </div>
-
-      
 
       <script>
         document.addEventListener("DOMContentLoaded", () => {
           window.jsPDF = window.jspdf.jsPDF;
-  
+
           const optionsData = {
             brightness: [
               { value: 0, label: "Bright, shining" },
@@ -552,7 +625,7 @@
               { value: 2, label: "Sweaty" },
             ],
           };
-  
+
           const dropdowns = document.querySelectorAll(".dropdown");
           const popup = document.getElementById("popup");
           const overlay = document.getElementById("overlay");
@@ -562,92 +635,108 @@
           const submitButton = document.querySelector("button[type='submit']");
           let activeDropdown;
           const userSelections = {};
-  
+
           dropdowns.forEach((dropdown) => {
             dropdown.addEventListener("change", function () {
               const selectedValue = this.value;
               const options = optionsData[selectedValue];
               activeDropdown = this;
-  
+
               popupTitle.textContent = "Select an Option";
               popupOptions.innerHTML = "";
-  
+
               options.forEach((option) => {
                 const label = document.createElement("label");
                 label.classList.add("flex", "items-center", "mb-2");
-  
+
                 const radio = document.createElement("input");
                 radio.type = "radio";
                 radio.name = "popupOption";
                 radio.value = JSON.stringify(option);
                 radio.classList.add("mr-2");
-  
+
                 label.appendChild(radio);
                 label.appendChild(document.createTextNode(option.label));
-  
+
                 popupOptions.appendChild(label);
               });
-  
+
               popup.style.display = "block";
               overlay.style.display = "block";
             });
           });
-  
+
           closePopup.addEventListener("click", function () {
-            const selectedOption = document.querySelector('input[name="popupOption"]:checked');
-  
+            const selectedOption = document.querySelector(
+              'input[name="popupOption"]:checked'
+            );
+
             if (selectedOption) {
               const selectedData = JSON.parse(selectedOption.value);
               const { label, value } = selectedData;
-  
-              const currentOption = activeDropdown.querySelector(`option[value="${activeDropdown.value}"]`);
-              currentOption.innerHTML = `${currentOption.textContent.split(" - ")[0]} - <span class="answer-text">Rate Answer: ${label} ✓</span>`;
-  
+
+              const currentOption = activeDropdown.querySelector(
+                `option[value="${activeDropdown.value}"]`
+              );
+              currentOption.innerHTML = `${
+                currentOption.textContent.split(" - ")[0]
+              } - <span class="answer-text">Rate Answer: ${label} ✓</span>`;
+
               userSelections[activeDropdown.value] = {
                 question: currentOption.textContent.split(" - ")[0],
                 label,
                 score: value,
               };
-  
+
               const allOptions = [...activeDropdown.options];
-              const answeredOptions = allOptions.filter((opt) => opt.innerHTML.includes("Rate Answer:"));
-  
+              const answeredOptions = allOptions.filter((opt) =>
+                opt.innerHTML.includes("Rate Answer:")
+              );
+
               if (answeredOptions.length === allOptions.length - 1) {
                 activeDropdown.querySelector("option").textContent = `${
-                  activeDropdown.querySelector("option").textContent.split(" (")[0]
+                  activeDropdown
+                    .querySelector("option")
+                    .textContent.split(" (")[0]
                 } (Completed Answering)`;
               }
-  
+
               activeDropdown.value = "";
             }
-  
+
             popup.style.display = "none";
             overlay.style.display = "none";
           });
-  
+
           submitButton.addEventListener("click", (e) => {
             e.preventDefault();
-  
+
             const uncompletedDropdowns = [...dropdowns].filter(
-              (dropdown) => !dropdown.querySelector("option:first-child").textContent.includes("Completed Answering")
+              (dropdown) =>
+                !dropdown
+                  .querySelector("option:first-child")
+                  .textContent.includes("Completed Answering")
             );
-  
+
             if (uncompletedDropdowns.length > 0) {
               alert("Please complete all the sections before submitting!");
               return;
             }
-  
-            const totalScore = Object.values(userSelections).reduce((acc, curr) => acc + curr.score, 0);
+
+            const totalScore = Object.values(userSelections).reduce(
+              (acc, curr) => acc + curr.score,
+              0
+            );
             const qualityLabel = getQualityLabel(totalScore);
-  
+
             document.getElementById("qualityResult").textContent = qualityLabel;
             document.getElementById("resultDisplay").classList.remove("hidden");
-  
+
             generatePDF(totalScore, qualityLabel);
             generateExcel(totalScore, qualityLabel);
             document.getElementById("downloadLinks").classList.remove("hidden");
           });
-  
+
           function getQualityLabel(score) {
             if (score <= 3) return "Prime Quality";
             if (score <= 5) return "High Quality";
@@ -657,48 +746,63 @@
             if (score <= 19) return "Poor Quality";
             return "Unacceptable";
           }
-  
+
           function generatePDF(totalScore, qualityLabel) {
             const doc = new jsPDF();
             doc.setFontSize(16);
             doc.text("FISH ASSESSMENT FORM - SUBMISSION SUMMARY", 10, 10);
             doc.setFontSize(12);
             let y = 30;
-  
+
             Object.entries(userSelections).forEach(([field, data]) => {
-              doc.text(`${data.question}: ${data.label} (Score: ${data.score})`, 10, y);
+              doc.text(
+                `${data.question}: ${data.label} (Score: ${data.score})`,
+                10,
+                y
+              );
               y += 10;
             });
-  
+
             doc.setFont("helvetica", "bold");
             doc.text(`Total Score: ${totalScore}`, 10, y + 10);
             doc.text(`Quality: ${qualityLabel}`, 10, y + 20);
-  
+
             const pdfBlob = doc.output("blob");
-            document.getElementById("downloadPDF").href = URL.createObjectURL(pdfBlob);
-            document.getElementById("downloadPDF").download = "FishAssessment.pdf";
+            document.getElementById("downloadPDF").href =
+              URL.createObjectURL(pdfBlob);
+            document.getElementById("downloadPDF").download =
+              "FishAssessment.pdf";
           }
-  
+
           function generateExcel(totalScore, qualityLabel) {
             const workbook = XLSX.utils.book_new();
             const worksheetData = [["Question", "Answer", "Score"]];
-  
+
             Object.values(userSelections).forEach((data) => {
               worksheetData.push([data.question, data.label, data.score]);
             });
-  
+
             worksheetData.push(["Total Score", totalScore, ""]);
             worksheetData.push(["Quality", qualityLabel, ""]);
-  
+
             const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Fish Assessment");
-  
-            const excelBlob = new Blob([XLSX.write(workbook, { bookType: "xlsx", type: "array" })], {
-              type: "application/octet-stream",
-            });
-  
-            document.getElementById("downloadExcel").href = URL.createObjectURL(excelBlob);
-            document.getElementById("downloadExcel").download = "FishAssessment.xlsx";
+            XLSX.utils.book_append_sheet(
+              workbook,
+              worksheet,
+              "Fish Assessment"
+            );
+
+            const excelBlob = new Blob(
+              [XLSX.write(workbook, { bookType: "xlsx", type: "array" })],
+              {
+                type: "application/octet-stream",
+              }
+            );
+
+            document.getElementById("downloadExcel").href =
+              URL.createObjectURL(excelBlob);
+            document.getElementById("downloadExcel").download =
+              "FishAssessment.xlsx";
           }
         });
       </script>
@@ -706,7 +810,7 @@
       <!-- Left Column: Fish Freshness Detector (Moved to the Center) -->
       <div
         class="bg-[#1E1E1E] mt-10 shadow-4xl rounded-3xl p-6 hover:bg-[#2B2B2B] transition-all duration-500 ml-4"
-        style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0)" 
+        style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0)"
         onmouseover="this.style.boxShadow='0 4px 40px #c1e7ec';"
         onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';"
       >
@@ -778,7 +882,7 @@
             class="w-full py-2 px-4 rounded-2xl mt-2 hover:shadow-lg"
             style="background: linear-gradient(to right, #8b0000, #b22222)"
           >
-            Start Real-time Analysis
+            Start Realtime Inference
           </button>
 
           <!-- Hidden Real-Time Video Stream -->
@@ -795,10 +899,18 @@
             <label class="block text-lg font-semibold text-center mb-2">
               Inference Result:
             </label>
+            <!-- Chevron Icon with Toggle Animation -->
+            <div id="toggleResult" class="mt-2 cursor-pointer">
+              <i
+                id="chevronIcon"
+                class="fa fa-chevron-down fa-xs transition-transform duration-300"
+                aria-hidden="true"
+              ></i>
+            </div>
           </div>
 
-          <!-- Inference Result -->
-          <div class="flex justify-center">
+          <!-- Inference Result Section -->
+          <div id="inferenceResult" class="flex justify-center">
             <pre
               id="videoResultData"
               class="p-4 rounded-lg overflow-auto text-sm shadow-lg"
@@ -807,7 +919,6 @@
                 max-width: 800px;
                 background-color: #1f1f1f;
                 color: #ff7f7f;
-                /* videoResultData */
               "
             ></pre>
           </div>
@@ -919,7 +1030,7 @@
         </form>
 
         <!-- Result Display -->
-        <div id="resultDiv" class="mt-4 hidden">
+        <div id="resultDiv" class="mt-4 text-[0.1rem] hidden">
           <h2 class="text-lg font-semibold">Inference Result:</h2>
           <div id="imageWrapper" class="mt-4 flex justify-center"></div>
           <h2 class="pred-data text-lg font-semibold">Prediction Data:</h2>
@@ -1113,6 +1224,29 @@
 
       let streaming = false;
 
+      const toggleResultIcon = document.getElementById("chevronIcon");
+      const inferenceResultSection = document.getElementById("inferenceResult");
+
+      // Toggle visibility and animate chevron
+      toggleResultIcon.addEventListener("click", () => {
+        // Check if the result section is currently visible
+        const isHidden = inferenceResultSection.style.display === "none";
+
+        if (isHidden) {
+          // Show the inference result section
+          inferenceResultSection.style.display = "flex";
+          // Rotate chevron to point up
+          toggleResultIcon.classList.remove("fa-chevron-up");
+          toggleResultIcon.classList.add("fa-chevron-down");
+        } else {
+          // Hide the inference result section
+          inferenceResultSection.style.display = "none";
+          // Rotate chevron to point down
+          toggleResultIcon.classList.remove("fa-chevron-down");
+          toggleResultIcon.classList.add("fa-chevron-up");
+        }
+      });
+
       document.addEventListener("DOMContentLoaded", () => {
         // Initialize default state on page load
         setDefaultState();
@@ -1130,7 +1264,7 @@
         legendContainer.innerHTML = `
     <div class="not-available">
         <div class="semi-transparent-container">
-            <!-- <img src="{{ url_for('static', filename='assets/empty-box.png') }}" class="not-available-image" alt="No data"> -->
+              <img src="{{ url_for('static', filename='assets/empty-box.png') }}" class="not-available-image" alt="No data">
             <span class="not-available-text" style="font-size: 0.75rem">Empty or no predictions available. Please upload or capture an image.</span>
         </div>
     </div>
@@ -1343,22 +1477,33 @@
         return `${classLabel} (${confidencePercentage}%)`;
       }
 
-      // Start Webcam
-      startWebcam.addEventListener("click", async () => {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-          webcam.srcObject = stream;
-          webcam.classList.remove("hidden");
-          capture.classList.remove("hidden");
+      let currentStream = null;
 
-          //   displayImageWithBoundingBoxes(imageUrl, predictionData);
-        } catch (error) {
-          console.error("Webcam access error:", error);
-          alert(
-            "Failed to access the camera. Please allow permissions and try again."
-          );
+      startWebcam.addEventListener("click", async () => {
+        if (currentStream) {
+          // Stop the webcam
+          const tracks = currentStream.getTracks();
+          tracks.forEach((track) => track.stop());
+          webcam.classList.add("hidden");
+          capture.classList.add("hidden");
+          startWebcam.textContent = "Start Webcam"; // Change button text back
+          currentStream = null; // Reset the stream
+        } else {
+          // Start the webcam
+          try {
+            currentStream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+            });
+            webcam.srcObject = currentStream;
+            webcam.classList.remove("hidden");
+            capture.classList.remove("hidden");
+            startWebcam.textContent = "Stop Webcam"; // Change button text to "Stop Webcam"
+          } catch (error) {
+            console.error("Webcam access error:", error);
+            alert(
+              "Failed to access the camera. Please allow permissions and try again."
+            );
+          }
         }
       });
 
@@ -1430,13 +1575,13 @@
       function stopAllCameraStreams() {
         // Stop webcam stream
         if (webcam.srcObject) {
-          webcam.srcObject.getTracks().forEach(track => track.stop());
+          webcam.srcObject.getTracks().forEach((track) => track.stop());
           webcam.srcObject = null;
         }
-        
+
         // Stop video stream
         if (videoStream.srcObject) {
-          videoStream.srcObject.getTracks().forEach(track => track.stop());
+          videoStream.srcObject.getTracks().forEach((track) => track.stop());
           videoStream.srcObject = null;
           streaming = false;
         }
@@ -1506,31 +1651,32 @@
 
       // Enhanced progress update function with synchronized slower movement
       function updateProgress(progressBar, progressText, progress) {
-        const progressElement = progressBar.querySelector('.progress-bar');
-        
+        const progressElement = progressBar.querySelector(".progress-bar");
+
         // Show progress elements
-        progressBar.style.display = 'block';
-        progressText.style.display = 'block';
-        
+        progressBar.style.display = "block";
+        progressText.style.display = "block";
+
         const currentWidth = parseFloat(progressElement.style.width) || 0;
         const targetWidth = progress;
         const duration = 1500; // Total animation duration in milliseconds
         const startTime = performance.now();
-        
+
         const animate = (currentTime) => {
           const elapsed = currentTime - startTime;
           const progress = Math.min(elapsed / duration, 1);
-          
-          const currentProgress = currentWidth + (targetWidth - currentWidth) * progress;
-          
+
+          const currentProgress =
+            currentWidth + (targetWidth - currentWidth) * progress;
+
           progressElement.style.width = `${currentProgress}%`;
           progressText.textContent = `${Math.round(currentProgress)}%`;
-          
+
           if (progress < 1) {
             requestAnimationFrame(animate);
           }
         };
-        
+
         requestAnimationFrame(animate);
       }
 
@@ -1538,41 +1684,41 @@
       uploadForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(uploadForm);
-        const progressBar = document.getElementById('uploadProgress');
-        const progressText = document.getElementById('uploadProgressText');
-        
+        const progressBar = document.getElementById("uploadProgress");
+        const progressText = document.getElementById("uploadProgressText");
+
         try {
           const xhr = new XMLHttpRequest();
-          xhr.open('POST', '/upload-single-image', true);
-          
+          xhr.open("POST", "/upload-single-image", true);
+
           xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
               const progress = (e.loaded / e.total) * 100;
               updateProgress(progressBar, progressText, progress);
             }
           };
-          
+
           xhr.onload = async () => {
             if (xhr.status === 200) {
               const data = JSON.parse(xhr.responseText);
               resultData.textContent = JSON.stringify(data, null, 2);
               resultDiv.classList.remove("hidden");
-              
+
               let predictionData = data.predictions;
               const file = formData.get("file");
               const imageUrl = URL.createObjectURL(file);
-              
+
               displayImageWithBoundingBoxes(imageUrl, predictionData);
               generateQualityLegend(predictionData);
-              
+
               // Hide progress bar after completion
               setTimeout(() => {
-                progressBar.style.display = 'none';
-                progressText.style.display = 'none';
+                progressBar.style.display = "none";
+                progressText.style.display = "none";
               }, 1000);
             }
           };
-          
+
           xhr.send(formData);
         } catch (error) {
           console.error("Error:", error);
@@ -1583,49 +1729,65 @@
       batchForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(batchForm);
-        const progressBar = document.getElementById('batchProgress');
-        const progressText = document.getElementById('batchProgressText');
-        
+        const progressBar = document.getElementById("batchProgress");
+        const progressText = document.getElementById("batchProgressText");
+
         try {
           const xhr = new XMLHttpRequest();
-          xhr.open('POST', '/upload-batch-images', true);
-          
+          xhr.open("POST", "/upload-batch-images", true);
+
           xhr.upload.onprogress = (e) => {
             if (e.lengthComputable) {
               const progress = (e.loaded / e.total) * 100;
               updateProgress(progressBar, progressText, progress);
             }
           };
-          
+
           xhr.onload = async () => {
             if (xhr.status === 200) {
               const data = JSON.parse(xhr.responseText);
               resultData.textContent = JSON.stringify(data, null, 2);
               resultDiv.classList.remove("hidden");
-              
+
               // Hide progress bar after completion
               setTimeout(() => {
-                progressBar.style.display = 'none';
-                progressText.style.display = 'none';
+                progressBar.style.display = "none";
+                progressText.style.display = "none";
               }, 1000);
             }
           };
-          
+
           xhr.send(formData);
         } catch (error) {
           console.error("Error:", error);
         }
       });
 
-      // Start Real-Time Video Analysis
+      // Start or stop real-time video analysis
       startVideo.addEventListener("click", async () => {
         if (!streaming) {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-          });
-          videoStream.srcObject = stream;
-          streaming = true;
-          analyzeFrame();
+          // Start video stream
+          try {
+            currentStream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+            });
+            videoStream.srcObject = currentStream;
+            streaming = true;
+            startVideo.textContent = "Stop Realtime Inference"; // Change button text to "Stop Video"
+            analyzeFrame(); // Start analyzing frames (or your real-time processing)
+          } catch (error) {
+            console.error("Error starting video stream:", error);
+            alert(
+              "Failed to access the camera. Please allow permissions and try again."
+            );
+          }
+        } else {
+          // Stop video stream
+          const tracks = currentStream.getTracks();
+          tracks.forEach((track) => track.stop());
+          videoStream.srcObject = null;
+          streaming = false;
+          startVideo.textContent = "Start Realtime Inference"; // Change button text back to "Start Video"
         }
       });
     </script>
@@ -1635,7 +1797,13 @@
       <h2 class="text-xl font-bold mb-4" id="popupTitle">Select an Option</h2>
       <form id="popupForm">
         <div id="popupOptions" class="popup-options"></div>
-        <button type="button" id="closePopup" class="mt-4 px-4 py-2 rounded bg-red-600 text-white">Submit</button>
+        <button
+          type="button"
+          id="closePopup"
+          class="mt-4 px-4 py-2 rounded bg-red-600 text-white"
+        >
+          Submit
+        </button>
       </form>
     </div>
   </body>
