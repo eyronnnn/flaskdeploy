@@ -4,11 +4,10 @@ from inference_sdk import InferenceHTTPClient
 
 app = Flask(__name__)
 
-# Initialize Roboflow Inference Client using environment variable
+# Initialize Roboflow Inference Client using new API key
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",
-    # api_key=os.getenv("API_KEY")  # Fetch API key from environment variable
-    api_key="SUxPc1PBNC08yu5jmTnN"  # Comment this LOC to enable Production Mode.
+    api_key="SUxPc1PBNC08yu5jmTnN"  # Updated API key
 )
 
 # Ensure the 'uploads' directory exists
@@ -19,6 +18,10 @@ if not os.path.exists(UPLOAD_FOLDER):
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/page2')
+def page2():
+    return render_template('index2.html')
 
 @app.route('/upload-single-image', methods=['POST'])
 def upload_single_image():
