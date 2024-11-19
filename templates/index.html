@@ -1,1835 +1,481 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fish Freshness Detector</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.3/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://api.fontshare.com/v2/css?f[]=archivo@400&f[]=clash-display@600&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-      rel="stylesheet"
-    />
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaGrade Home</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font for Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
     <style>
-      #chevronIcon {
-        font-size: 24px; /* Adjust size */
-      }
-
-      #inferenceResult {
-        display: flex; /* Default visible */
-        transition: all 0.3s ease-in-out; /* Smooth hiding/showing */
-      }
-
-      body {
-        font-family: "Poppins", sans-serif;
-        background-image: url("https://papers.co/wallpaper/papers.co-vd85-scifi-web-by-emilwidlund-dark-pattern-abstract-art-29-wallpaper.jpg");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        color: #e0e0e0;
-      }
-
-      .semi-transparent-container {
-        background-color: rgba(
-          255,
-          255,
-          255,
-          0.05
-        ); /* Semi-transparent white background */
-        padding: 20px;
-        border-radius: 10px; /* Rounded corners */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for a raised effect */
-        text-align: center; /* Center the text */
-        width: 100%; /* Ensure full container use */
-        max-width: 400px; /* Constrain width for better appearance */
-        align-items: center;
-        justify-items: center;
-      }
-
-      .not-available-image {
-        max-width: 5rem; /* Resize the image for a reasonable size */
-        height: auto;
-        /* margin-bottom: 5px; Space between image and text */
-      }
-
-      .not-available-text {
-        font-size: 0.5rem; /* Reasonably sized text */
-        color: #f0f0f0; /* Darker text for better contrast */
-      }
-      .not-available {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        border-radius: 14px; /* Optional rounded corners */
-        padding: 20px;
-        background-color: rgba(136, 136, 136, 0.05);
-      }
-      .pred-data {
-        margin-top: 2.5rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .legend-container {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-height: 200px; /* Adjust as necessary */
-        border-radius: 14px; /* Optional rounded corners */
-        background-color: rgba(136, 136, 136, 0.05);
-      }
-
-      .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-family: "Arial", sans-serif;
-        font-size: 14px;
-        color: white;
-      }
-
-      .color-box {
-        width: 20px;
-        height: 20px;
-        border-radius: 4px;
-        border: 1px solid white; /* Optional border for better visibility */
-      }
-
-      #imageWrapper canvas {
-        max-width: 100%; /* Ensure canvas does not overflow */
-        height: auto; /* Maintain aspect ratio */
-        border-radius: 1rem;
-      }
-      #resultDiv {
-        width: 100%; /* Optional: Make resultDiv take full width of its container */
-        max-width: 640px; /* Constrain width of resultDiv for consistency */
-        margin: 0 auto; /* Center it horizontally */
-      }
-
-      #resultData {
-        max-height: 300px;
-        max-width: 100%; /* Or a fixed width like 500px */
-        overflow: hidden; /* Initially hide both scrollbars */
-        scrollbar-width: thin; /* Firefox: thin scrollbar */
-        scrollbar-color: rgba(136, 136, 136, 0.5) #f0f0f0; /* Firefox: semi-transparent thumb and track */
-        font-size: xx-small;
-      }
-
-      /* WebKit-based browsers like Brave, Chrome, Edge */
-      #resultData::-webkit-scrollbar {
-        width: 6px; /* Slim vertical scrollbar */
-        height: 6px; /* Slim horizontal scrollbar */
-      }
-
-      #resultData::-webkit-scrollbar-track {
-        background: #f0f0f0; /* Light background for track */
-        border-radius: 10rem; /* Optional: Rounded corners for track */
-      }
-
-      #resultData::-webkit-scrollbar-thumb {
-        background: rgba(136, 136, 136, 0.6); /* Semi-transparent thumb */
-        border-radius: 10rem; /* Rounded corners for the thumb */
-      }
-
-      #resultData::-webkit-scrollbar-thumb:hover {
-        background: rgba(
-          85,
-          85,
-          85,
-          0.8
-        ); /* Slightly darker and less transparent on hover */
-      }
-
-      #imageWrapper {
-        display: flex;
-        justify-content: center; /* Center the canvas within imageWrapper */
-        align-items: center;
-      }
-
-      h1 {
-        font-family: "Poppins", sans-serif;
-        color: #ffffff;
-        font-size: 3.5rem;
-        text-transform: uppercase;
-        margin-top: 1rem;
-        margin-bottom: 2rem;
-        text-align: left;
-      }
-
-      button {
-        background-color: #8b0000;
-        color: #ffffff;
-        font-weight: bold;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-
-      button:hover {
-        box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
-      }
-
-      .tab-button {
-        background: linear-gradient(to bottom, #4c0000, #8b0000);
-        color: #ffffff;
-        transition: background 0.3s, box-shadow 0.3s;
-        font-family: "Poppins", sans-serif; /* Apply Poppins font */
-      }
-
-      .tab-button:hover {
-        box-shadow: 0 6px 12px rgba(255, 255, 255, 0.1);
-      }
-
-      .tab-button:nth-child(1) {
-        /* Real-time Tab */
-        background: linear-gradient(to bottom, #2e0000, #4c0000);
-      }
-
-      .tab-button:nth-child(2) {
-        /* Upload Tab */
-        background: linear-gradient(to bottom, #3a0000, #5c0000);
-      }
-
-      .tab-button:nth-child(3) {
-        /* Capture Tab */
-        background: linear-gradient(to bottom, #480000, #7c0000);
-      }
-
-      .tab-button:nth-child(4) {
-        /* Batch Tab */
-        background: linear-gradient(to bottom, #600000, #8b0000);
-      }
-
-      .tab-button.active {
-        background: linear-gradient(to bottom, #ff3b3b, #b22222);
-      }
-
-      .info-icon {
-        display: inline-block;
-        width: 20px;
-        height: 20px;
-        background-color: #b22222;
-        color: white;
-        font-size: 12px;
-        font-weight: bold;
-        text-align: center;
-        line-height: 20px;
-        border-radius: 50%;
-        cursor: pointer;
-        position: relative;
-      }
-
-      .info-icon::after {
-        content: attr(data-info);
-        position: absolute;
-        left: 110%; /* Adjust tooltip position */
-        top: 50%;
-        transform: translateY(-50%);
-        background: #2a2a2a;
-        color: #ffb6c1;
-        padding: 8px;
-        border-radius: 5px;
-        font-size: 12px;
-        white-space: nowrap;
-        box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
-        visibility: hidden; /* Hide by default */
-        opacity: 0;
-        transition: opacity 0.2s, visibility 0.2s;
-        z-index: 1000;
-      }
-
-      .info-icon:hover::after {
-        visibility: visible; /* Show on hover */
-        opacity: 1;
-      }
-      input,
-      select {
-        background-color: #2c2c2c;
-        color: #ffffff;
-        border: 1px solid #b22222;
-      }
-
-      pre {
-        background-color: #1f1f1f;
-        color: #ff7f7f;
-      }
-
-      .rounded-lg,
-      .rounded-2xl,
-      .rounded-3xl {
-        background-color: #1a1a1a;
-        box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
-      }
-
-      .chart-container {
-        position: relative;
-        height: 16rem; /* Ensure enough space for charts */
-      }
-
-      .pie-chart-container {
-        position: relative;
-        height: 12rem; /* Adjust the height of the pie chart */
-      }
-
-      .floating-shape {
-        position: absolute;
-        border-radius: 50%;
-        opacity: 0.2;
-        filter: blur(20px);
-        animation: float-animation 20s linear infinite,
-          rotation-animation 20s linear infinite;
-      }
-
-      /* Keyframes for floating effect */
-      @keyframes float-animation {
-        0%,
-        100% {
-          transform: translateY(0%) translateX(0%);
+        @font-face {
+            font-family: 'Dirtyline';
+            src: url('/static/fonts/Dirtyline36DaysOfType2022-Reg.woff2') format('woff2'),
+                url('/static/fonts/Dirtyline36DaysOfType2022-Reg.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
         }
-        50% {
-          transform: translateY(100%) translateX(100%);
+
+        @font-face {
+            font-family: 'AtypTextBold';
+            src: url('/static/fonts/AtypTextTRIAL-Semibold.woff2') format('woff2'),
+                url('/static/fonts/AtypTextTRIAL-Semibold.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
         }
-      }
 
-      /* Keyframes for rotation */
-      @keyframes rotation-animation {
-        0% {
-          transform: rotate(0deg);
+
+
+        h1 {
+            font-family: 'Dirtyline', sans-serif;
         }
-        100% {
-          transform: rotate(360deg);
+
+        p {
+            font-family: 'Poppins', sans-serif;
         }
-      }
 
-      /* Customizable shapes */
-      .shape-1 {
-        background-color: rgba(255, 0, 0, 0.5); /* Red shape */
-        width: 100px;
-        height: 100px;
-        top: 10%;
-        left: 20%;
-        animation-delay: 0s;
-      }
-
-      .shape-2 {
-        background-color: rgba(0, 255, 0, 0.5); /* Green shape */
-        width: 120px;
-        height: 120px;
-        top: 40%;
-        left: 60%;
-        animation-delay: 4s;
-      }
-
-      .shape-3 {
-        background-color: rgba(0, 0, 255, 0.5); /* Blue shape */
-        width: 80px;
-        height: 80px;
-        top: 70%;
-        left: 30%;
-        animation-delay: 2s;
-      }
-
-      .shape-4 {
-        background-color: rgba(255, 255, 0, 0.5); /* Yellow shape */
-        width: 90px;
-        height: 90px;
-        top: 20%;
-        left: 80%;
-        animation-delay: 6s;
-      }
-
-      .popup {
-        position: absolute;
-        top: 20%;
-        left: 10%;
-        background-color: #1a1a1a;
-        width: 20%;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
-        z-index: 1000;
-        display: none;
-      }
-
-      .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        z-index: 999;
-        display: none;
-      }
-
-      .answer-text {
-        color: red;
-        font-weight: bold;
-      }
-
-      .progress-bar-container {
-        width: 100%;
-        height: 4px;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 2px;
-        margin-top: 8px;
-        overflow: hidden;
-        display: none;
-      }
-
-      .progress-bar {
-        width: 0%;
-        height: 100%;
-        background: linear-gradient(to right, #8b0000, #b22222);
-        position: relative;
-        transition: width 1.5s ease-in-out; /* Increased from 0.3s to 1.5s */
-        border-radius: 2px;
-      }
-
-      /* Enhanced fluid animation */
-      .progress-bar::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: linear-gradient(
-          45deg,
-          rgba(255, 255, 255, 0.15) 25%,
-          transparent 25%,
-          transparent 50%,
-          rgba(255, 255, 255, 0.15) 50%,
-          rgba(255, 255, 255, 0.15) 75%,
-          transparent 75%,
-          transparent
-        );
-        background-size: 20px 20px;
-        animation: progress-bar-stripes 2s linear infinite,
-          /* Increased from 1s to 2s */ progress-bar-flow 5s ease infinite; /* Increased from 3s to 5s */
-        z-index: 1;
-      }
-
-      @keyframes progress-bar-stripes {
-        0% {
-          background-position: 0 0;
+        a {
+            font-family: 'Poppins', sans-serif;
         }
-        100% {
-          background-position: 20px 0;
+
+        .btn {
+            font-family: 'Poppins', sans-serif;
+            font-weight: bold;
         }
-      }
 
-      @keyframes progress-bar-flow {
-        0% {
-          opacity: 0.3;
-        } /* Reduced from 0.5 to 0.3 */
-        50% {
-          opacity: 0.8;
-        } /* Reduced from 1 to 0.8 */
-        100% {
-          opacity: 0.3;
-        } /* Reduced from 0.5 to 0.3 */
-      }
+        .atyp-font {
+            font-family: 'AtypTextBold', sans-serif;
+        }
 
-      .progress-text {
-        font-size: 12px;
-        color: #ffffff;
-        text-align: right;
-        margin-top: 4px;
-        display: none;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-4 p-6">
-      <!-- Center Column: Input Forms (Moved to the Left) -->
-      <div
-        class="bg-[#1E1E1E] shadow-box rounded-3xl p-6 max-w-2xl mx-auto mt-20 transition-all duration-300"
-        style="
-          transition: all 0.3s ease;
-          box-shadow: 0 0 0 rgba(255, 255, 255, 0);
-        "
-        onmouseover="this.style.boxShadow='0 0 30px rgba(255, 255, 255, 0.8)'"
-        onmouseout="this.style.boxShadow='0 0 0 rgba(255, 255, 255, 0)'"
-      >
-        <h2 class="text-center text-4xl font-bold mb-4 mt-10 mb-10">
-          Fish Assessment Form
-        </h2>
-        <p class="mb-10 text-center text-sm">
-          Assess fish quality by evaluating appearance, gills, and eyes.
-          Complete all sections.
-        </p>
+        body,
+        header,
+        .font-dirtyline {
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-        <form>
-          <div class="mb-4">
-            <label for="generalAppearance" class="block text-sm font-medium"
-              >General Appearance</label
-            >
-            <select
-              id="generalAppearance"
-              class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]"
-            >
-              <option value="" disabled selected>
-                Skin, Bloodspots, Stiffness and Smell (Please Select)
-              </option>
-              <option value="brightness">
-                Rate the brightness of the skin
-              </option>
-              <option value="bloodspot">
-                Scale of bloodspots found on the gills
-              </option>
-              <option value="stiffness">Rate the stiffness of the fish</option>
-              <option value="belly">Firmness of the belly</option>
-              <option value="smellofthefish">
-                Identify the smell of the fish
-              </option>
-            </select>
-          </div>
+        body {
+            transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                      color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                      background-image 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background-image: url('../backgroundimage.png'); /* Updated path */
+            background-size: 60%; /* Reduced from cover to make image smaller */
+            background-position: center; /* Added to center the image */
+            background-repeat: no-repeat; /* Added to prevent repeating */
+            background-blend-mode: multiply; /* This helps blend with dark mode */
+            overflow-x: hidden;
+            min-height: 100vh; /* Added to ensure body takes full viewport height */
+        }
 
-          <div class="mb-4">
-            <label for="eyes" class="block text-sm font-medium">Eyes</label>
-            <select
-              id="eyes"
-              class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]"
-            >
-              <option value="" disabled selected>
-                Clarity & Shape (Please Select)
-              </option>
-              <option value="clarity">Clear Eyes</option>
-              <option value="shape">Sunken or Bulging</option>
-            </select>
-          </div>
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                                      transparent 0%, 
+                                      rgba(0, 0, 0, 0.95) 100%);
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            pointer-events: none;
+            z-index: -1;
+        }
 
-          <div class="mb-4">
-            <label for="gills" class="block text-sm font-medium">Gills</label>
-            <select
-              id="gills"
-              class="dropdown mt-1 block w-full px-3 py-2 rounded-md bg-[#2c2c2c] text-white border border-[#b22222]"
-            >
-              <option value="" disabled selected>
-                Colour & Smell (Please Select)
-              </option>
-              <option value="colour">Check color of gills</option>
-              <option value="smell">Identify smell of gills</option>
-            </select>
-          </div>
-          <button
-            type="submit"
-            class="w-full py-2 px-4 rounded-2xl hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
-            style="
-              background: linear-gradient(to right, #8b0000, #b22222);
-              box-shadow: 0 4px 6px -1px rgba(139, 0, 0, 0.3),
-                0 2px 4px -1px rgba(178, 34, 34, 0.2);
-            "
-          >
-            Submit
-          </button>
+        body.dark-mode::before {
+            opacity: 1;
+        }
+        body.dark-mode .atyp-font {
+            color: white;
+        }
 
-          <div id="resultDisplay" class="mt-4 hidden">
-            <h3 class="text-lg font-semibold">
-              Result (Quality): <span id="qualityResult"></span>
-            </h3>
-          </div>
+        body.dark-mode p {
+            color: white !important;
+        }
 
-          <div id="downloadLinks" class="mt-4 hidden">
-            <h3 class="text-lg font-semibold mb-2">Download your files:</h3>
-            <a
-              id="downloadPDF"
-              href="#"
-              class="block text-blue-500 hover:underline"
-              >Download PDF</a
-            >
-            <a
-              id="downloadExcel"
-              href="#"
-              class="block text-blue-500 hover:underline"
-              >Download Excel</a
-            >
-          </div>
-        </form>
-      </div>
+        body.dark-mode {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2c2c2c 100%);
+        }
 
-      <script>
-        document.addEventListener("DOMContentLoaded", () => {
-          window.jsPDF = window.jspdf.jsPDF;
+        .toggle-slider {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-          const optionsData = {
-            brightness: [
-              { value: 0, label: "Bright, shining" },
-              { value: 1, label: "Bright" },
-              { value: 2, label: "Dull" },
-            ],
-            bloodspot: [
-              { value: 0, label: "None" },
-              { value: 1, label: "Small, 10-30%" },
-              { value: 2, label: "Big, 30-50%" },
-              { value: 3, label: "Very Big, 50-100%" },
-            ],
-            stiffness: [
-              { value: 0, label: "Stiff" },
-              { value: 1, label: "Elastic" },
-              { value: 2, label: "Firm" },
-              { value: 3, label: "Soft" },
-            ],
-            belly: [
-              { value: 0, label: "Firm" },
-              { value: 1, label: "Soft" },
-              { value: 2, label: "Belly Burst" },
-            ],
-            smellofthefish: [
-              { value: 0, label: "Fresh" },
-              { value: 1, label: "Neutral" },
-              { value: 2, label: "Musty" },
-              { value: 3, label: "Stale meat/rancid" },
-            ],
-            clarity: [
-              { value: 0, label: "Clear" },
-              { value: 1, label: "Cloudy" },
-            ],
-            shape: [
-              { value: 0, label: "Normal" },
-              { value: 1, label: "Sunken" },
-            ],
-            colour: [
-              { value: 0, label: "Bright red" },
-              { value: 1, label: "Dark red" },
-              { value: 2, label: "Pale" },
-            ],
-            smell: [
-              { value: 0, label: "Fresh" },
-              { value: 1, label: "Neutral" },
-              { value: 2, label: "Sweaty" },
-            ],
-          };
+        main {
+            height: 100vh;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                      opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-          const dropdowns = document.querySelectorAll(".dropdown");
-          const popup = document.getElementById("popup");
-          const overlay = document.getElementById("overlay");
-          const popupTitle = document.getElementById("popupTitle");
-          const popupOptions = document.getElementById("popupOptions");
-          const closePopup = document.getElementById("closePopup");
-          const submitButton = document.querySelector("button[type='submit']");
-          let activeDropdown;
-          const userSelections = {};
+        body.dark-mode main {
+            transform: scale(1.02);
+        }
 
-          dropdowns.forEach((dropdown) => {
-            dropdown.addEventListener("change", function () {
-              const selectedValue = this.value;
-              const options = optionsData[selectedValue];
-              activeDropdown = this;
+        #theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: white;
+            box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
 
-              popupTitle.textContent = "Select an Option";
-              popupOptions.innerHTML = "";
+        #theme-toggle.dark {
+            background-color: #3c3c3c;
+            box-shadow: 0 4px 15px -1px rgba(255, 255, 255, 0.1);
+            transform: rotate(360deg);
+        }
 
-              options.forEach((option) => {
-                const label = document.createElement("label");
-                label.classList.add("flex", "items-center", "mb-2");
+        #slider {
+            background-color: #C92525;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-                const radio = document.createElement("input");
-                radio.type = "radio";
-                radio.name = "popupOption";
-                radio.value = JSON.stringify(option);
-                radio.classList.add("mr-2");
+        #slider.dark-slider {
+            background-color: white;
+            transform: translateX(1.75rem) scale(1.1);
+        }
 
-                label.appendChild(radio);
-                label.appendChild(document.createTextNode(option.label));
+        .toggle-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-                popupOptions.appendChild(label);
-              });
+        #sun-icon {
+            right: 10px;
+            opacity: 1;
+            transform: translateY(-50%) rotate(0deg);
+        }
 
-              popup.style.display = "block";
-              overlay.style.display = "block";
-            });
-          });
+        #moon-icon {
+            left: 10px;
+            opacity: 0;
+            transform: translateY(-50%) rotate(-90deg);
+        }
 
-          closePopup.addEventListener("click", function () {
-            const selectedOption = document.querySelector(
-              'input[name="popupOption"]:checked'
-            );
+        .dark #sun-icon {
+            opacity: 0;
+            transform: translateY(-50%) rotate(90deg);
+        }
 
-            if (selectedOption) {
-              const selectedData = JSON.parse(selectedOption.value);
-              const { label, value } = selectedData;
+        .dark #moon-icon {
+            opacity: 1;
+            transform: translateY(-50%) rotate(0deg);
+        }
 
-              const currentOption = activeDropdown.querySelector(
-                `option[value="${activeDropdown.value}"]`
-              );
-              currentOption.innerHTML = `${
-                currentOption.textContent.split(" - ")[0]
-              } - <span class="answer-text">Rate Answer: ${label} ✓</span>`;
+        .text-gray-600,
+        .text-gray-800,
+        .text-white {
+            transition: color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-              userSelections[activeDropdown.value] = {
-                question: currentOption.textContent.split(" - ")[0],
-                label,
-                score: value,
-              };
+        .btn-text {
+            transform: translateX(0);
+            transition: transform 0.2s ease;
+        }
 
-              const allOptions = [...activeDropdown.options];
-              const answeredOptions = allOptions.filter((opt) =>
-                opt.innerHTML.includes("Rate Answer:")
-              );
+        .group:hover .btn-text {
+            transform: translateX(-8px);
+        }
 
-              if (answeredOptions.length === allOptions.length - 1) {
-                activeDropdown.querySelector("option").textContent = `${
-                  activeDropdown
-                    .querySelector("option")
-                    .textContent.split(" (")[0]
-                } (Completed Answering)`;
-              }
+        /* Enhanced button shadows and hover effects */
+        .dashboard-btn {
+            box-shadow: 0 4px 15px -3px rgba(201, 37, 37, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-              activeDropdown.value = "";
-            }
+        .scan-btn {
+            box-shadow: 0 4px 15px -3px rgba(201, 37, 37, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-            popup.style.display = "none";
-            overlay.style.display = "none";
-          });
+        body.dark-mode .dashboard-btn {
+            box-shadow: 0 4px 20px -3px rgba(255, 255, 255, 0.2);
+        }
 
-          submitButton.addEventListener("click", (e) => {
-            e.preventDefault();
+        body.dark-mode .scan-btn {
+            box-shadow: 0 4px 20px -3px rgba(255, 255, 255, 0.3);
+        }
 
-            const uncompletedDropdowns = [...dropdowns].filter(
-              (dropdown) =>
-                !dropdown
-                  .querySelector("option:first-child")
-                  .textContent.includes("Completed Answering")
-            );
+        .dashboard-btn:hover, .scan-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            filter: brightness(1.1);
+        }
 
-            if (uncompletedDropdowns.length > 0) {
-              alert("Please complete all the sections before submitting!");
-              return;
-            }
+        body.dark-mode .dashboard-btn:hover {
+            box-shadow: 0 8px 25px -5px rgba(255, 255, 255, 0.4);
+        }
 
-            const totalScore = Object.values(userSelections).reduce(
-              (acc, curr) => acc + curr.score,
-              0
-            );
-            const qualityLabel = getQualityLabel(totalScore);
+        body.dark-mode .scan-btn:hover {
+            box-shadow: 0 8px 25px -5px rgba(255, 255, 255, 0.5);
+        }
 
-            document.getElementById("qualityResult").textContent = qualityLabel;
-            document.getElementById("resultDisplay").classList.remove("hidden");
+        .dashboard-btn .btn-text {
+            color: #C92525;
+        }
 
-            generatePDF(totalScore, qualityLabel);
-            generateExcel(totalScore, qualityLabel);
-            document.getElementById("downloadLinks").classList.remove("hidden");
-          });
+        body.dark-mode .dashboard-btn .btn-text {
+            color: white;
+        }
 
-          function getQualityLabel(score) {
-            if (score <= 3) return "Prime Quality";
-            if (score <= 5) return "High Quality";
-            if (score <= 8) return "Good Quality";
-            if (score <= 11) return "Acceptable";
-            if (score <= 15) return "Marginal";
-            if (score <= 19) return "Poor Quality";
-            return "Unacceptable";
-          }
+        /* Add these new styles */
+        .bubble {
+            position: fixed;
+            bottom: -20px;
+            background: rgba(201, 37, 37, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: rise 8s infinite ease-in;
+            z-index: -1;
+            box-shadow: 0 0 10px rgba(201, 37, 37, 0.2);
+        }
 
-          function generatePDF(totalScore, qualityLabel) {
-            const doc = new jsPDF();
-            doc.setFontSize(16);
-            doc.text("FISH ASSESSMENT FORM - SUBMISSION SUMMARY", 10, 10);
-            doc.setFontSize(12);
-            let y = 30;
+        body.dark-mode .bubble {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
 
-            Object.entries(userSelections).forEach(([field, data]) => {
-              doc.text(
-                `${data.question}: ${data.label} (Score: ${data.score})`,
-                10,
-                y
-              );
-              y += 10;
-            });
-
-            doc.setFont("helvetica", "bold");
-            doc.text(`Total Score: ${totalScore}`, 10, y + 10);
-            doc.text(`Quality: ${qualityLabel}`, 10, y + 20);
-
-            const pdfBlob = doc.output("blob");
-            document.getElementById("downloadPDF").href =
-              URL.createObjectURL(pdfBlob);
-            document.getElementById("downloadPDF").download =
-              "FishAssessment.pdf";
-          }
-
-          function generateExcel(totalScore, qualityLabel) {
-            const workbook = XLSX.utils.book_new();
-            const worksheetData = [["Question", "Answer", "Score"]];
-
-            Object.values(userSelections).forEach((data) => {
-              worksheetData.push([data.question, data.label, data.score]);
-            });
-
-            worksheetData.push(["Total Score", totalScore, ""]);
-            worksheetData.push(["Quality", qualityLabel, ""]);
-
-            const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-            XLSX.utils.book_append_sheet(
-              workbook,
-              worksheet,
-              "Fish Assessment"
-            );
-
-            const excelBlob = new Blob(
-              [XLSX.write(workbook, { bookType: "xlsx", type: "array" })],
-              {
-                type: "application/octet-stream",
-              }
-            );
-
-            document.getElementById("downloadExcel").href =
-              URL.createObjectURL(excelBlob);
-            document.getElementById("downloadExcel").download =
-              "FishAssessment.xlsx";
-          }
-        });
-      </script>
-
-      <!-- Left Column: Fish Freshness Detector (Moved to the Center) -->
-      <div
-        class="bg-[#1E1E1E] mt-10 shadow-4xl rounded-3xl p-6 hover:bg-[#2B2B2B] transition-all duration-500 ml-4"
-        style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0)"
-        onmouseover="this.style.boxShadow='0 4px 40px #c1e7ec';"
-        onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';"
-      >
-        <h1
-          class="text-center text-5xl font-bold mb-10 mt-10 pulse-effect"
-          style="
-            color: #ffffff;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 1),
-              0 0 40px rgba(255, 255, 255, 0.9);
-          "
-        >
-          AquaGrade
-        </h1>
-
-        <style>
-          @keyframes pulse {
+        @keyframes rise {
             0% {
-              text-shadow: 0 0 30px rgba(255, 255, 255, 1),
-                0 0 40px rgba(255, 255, 255, 0.9);
+                transform: translateY(0) scale(0.5);
+                opacity: 0;
             }
-            50% {
-              text-shadow: 0 0 50px rgba(255, 255, 255, 1),
-                0 0 70px rgba(255, 255, 255, 1);
+            20% {
+                opacity: 1;
+            }
+            70% {
+                opacity: 0.7;
             }
             100% {
-              text-shadow: 0 0 30px rgba(255, 255, 255, 1),
-                0 0 40px rgba(255, 255, 255, 0.9);
+                transform: translateY(-100vh) scale(1.5);
+                opacity: 0;
             }
-          }
+        }
 
-          .pulse-effect {
-            animation: pulse 1.2s infinite ease-in-out;
-            font-weight: 900; /* Make the text bolder to enhance visibility */
-          }
-        </style>
+        /* Bubble container */
+        .bubble-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
 
-        <!-- Option Tabs -->
-        <div class="mb-4 flex justify-between shadow-lg">
-          <button
-            id="videoTab"
-            class="tab-button active w-1/4 py-2 px-4 rounded-l-lg"
-          >
-            Real-time
-          </button>
-          <button id="uploadTab" class="tab-button w-1/4 py-2 px-4">
-            Upload
-          </button>
-          <button id="captureTab" class="tab-button w-1/4 py-2 px-4">
-            Capture
-          </button>
-          <button id="batchTab" class="tab-button w-1/4 py-2 px-4 rounded-r-lg">
-            Batch
-          </button>
-        </div>
+        /* Add new sparkle styles */
+        .sparkle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
 
-        <!-- Real-time Video Section -->
-        <div id="videoSection">
-          <label class="mt-8 mb-5 ml-2 block text-sm font-medium">
-            Real-time video analysis
-            <span
-              class="info-icon"
-              data-info="Analyze video frames in real-time from your webcam."
-              >i</span
-            >
-          </label>
+        .sparkle {
+            position: fixed;
+            background: rgba(201, 37, 37, 0.4);
+            pointer-events: none;
+            z-index: -1;
+            animation: sparkleFloat 6s infinite ease-out;
+            opacity: 0;
+        }
 
-          <button
-            id="startVideo"
-            class="w-full py-2 px-4 rounded-2xl mt-2 hover:shadow-lg"
-            style="background: linear-gradient(to right, #8b0000, #b22222)"
-          >
-            Start Realtime Inference
-          </button>
+        /* Different sparkle shapes */
+        .sparkle.diamond {
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
 
-          <!-- Hidden Real-Time Video Stream -->
-          <div class="flex justify-center mt-10">
-            <video
-              id="videoStream"
-              autoplay
-              class="rounded-lg shadow-lg"
-              style="width: 80%; max-width: 800px; height: auto"
-            ></video>
-          </div>
+        .sparkle.star {
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
 
-          <div class="flex justify-center mt-10">
-            <label class="block text-lg font-semibold text-center mb-2">
-              Inference Result:
-            </label>
-            <!-- Chevron Icon with Toggle Animation -->
-            <div id="toggleResult" class="mt-2 cursor-pointer">
-              <i
-                id="chevronIcon"
-                class="fas fa-chevron-down transition-transform duration-300"
-              ></i>
-            </div>
-          </div>
+        .sparkle.circle {
+            border-radius: 50%;
+        }
 
-          <!-- Inference Result Section -->
-          <div id="inferenceResult" class="flex justify-center">
-            <pre
-              id="videoResultData"
-              class="p-4 rounded-lg overflow-auto text-sm shadow-lg"
-              style="
-                width: 80%;
-                max-width: 800px;
-                background-color: #1f1f1f;
-                color: #ff7f7f;
-              "
-            ></pre>
-          </div>
-        </div>
+        body.dark-mode .sparkle {
+            background: rgba(255, 255, 255, 0.3);
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+        }
 
-        <!-- Upload Image Section -->
-        <form id="uploadForm" enctype="multipart/form-data" class="hidden">
-          <div class="mb-4">
-            <label for="file" class="block mt-8 mb-5 ml-2 text-sm font-medium">
-              Upload an image
-              <span
-                class="info-icon"
-                data-info="Upload a single image from your device for freshness detection."
-                >i</span
-              >
-            </label>
-            <input
-              type="file"
-              id="file"
-              name="file"
-              accept="image/*"
-              class="mt-1 block w-full px-3 py-2 rounded-md shadow-lg"
-            />
-          </div>
-          <button
-            type="submit"
-            class="w-full py-2 px-4 rounded-2xl hover:shadow-lg mb-10"
-            style="background: linear-gradient(to right, #8b0000, #b22222)"
-          >
-            Upload Image
-          </button>
-          <div class="progress-bar-container" id="uploadProgress">
-            <div class="progress-bar"></div>
-          </div>
-          <div class="progress-text" id="uploadProgressText">0%</div>
-        </form>
-
-        <!-- Capture Image Section -->
-        <div id="captureSection" class="hidden">
-          <label class="block text-sm font-medium text-white mt-5 mb-5">
-            Capture an image
-            <span
-              class="info-icon"
-              data-info="Use this feature to capture an image directly from your webcam. Ensure camera permissions are granted."
-              >i</span
-            >
-          </label>
-          <button
-            id="startWebcam"
-            class="w-full py-2 px-4 bg-black text-white rounded-lg hover:bg-gray-900 shadow-lg mt-2"
-            style="
-              font-family: 'Poppins', sans-serif;
-              background: linear-gradient(to right, #8b0000, #b22222);
-            "
-          >
-            Start Webcam
-          </button>
-          <video
-            id="webcam"
-            autoplay
-            class="mt-4 w-full rounded-lg shadow-lg hidden"
-          ></video>
-          <canvas id="snapshot" class="hidden"></canvas>
-          <button
-            id="capture"
-            class="w-full py-2 px-4 bg-black text-white rounded-lg mt-2 hover:bg-gray-900 shadow-lg hidden"
-          >
-            Capture Image
-          </button>
-
-          <div class="progress-bar-container" id="captureProgress">
-            <div class="progress-bar"></div>
-          </div>
-          <div class="progress-text" id="captureProgressText">0%</div>
-        </div>
-
-        <!-- Batch Upload Section -->
-        <form id="batchForm" enctype="multipart/form-data" class="hidden">
-          <div class="mb-4">
-            <label for="files" class="block text-sm mt-8 mb-5 ml-2 font-medium">
-              Upload multiple images
-              <span
-                class="info-icon"
-                data-info="Upload multiple images for batch processing."
-                >i</span
-              >
-            </label>
-            <input
-              type="file"
-              id="files"
-              name="files"
-              accept="image/*"
-              multiple
-              class="mt-1 block w-full px-3 py-2 rounded-md shadow-lg"
-            />
-          </div>
-          <button
-            type="submit"
-            class="w-full py-2 px-4 rounded-2xl hover:shadow-lg"
-            style="background: linear-gradient(to right, #8b0000, #b22222)"
-          >
-            Upload Batch
-          </button>
-
-          <div class="progress-bar-container" id="batchProgress">
-            <div class="progress-bar"></div>
-          </div>
-          <div class="progress-text" id="batchProgressText">0%</div>
-        </form>
-
-        <!-- Result Display -->
-        <div id="resultDiv" class="mt-4 text-[0.1rem] hidden">
-          <h2 class="text-lg font-semibold">Inference Result:</h2>
-          <div id="imageWrapper" class="mt-4 flex justify-center"></div>
-          <h2 class="pred-data text-lg font-semibold">Prediction Data:</h2>
-          <pre
-            id="resultData"
-            class="p-4 rounded-lg text-sm shadow-lg"
-            style="max-height: 125px; overflow-y: auto; overflow-x: auto"
-          ></pre>
-        </div>
-
-        <!-- Quality Legend -->
-        <h2 class="mt-12 mb-5 font-semibold">Quality Legend:</h2>
-        <div id="qualityLegend" class="legend-container font-semibold"></div>
-
-        <style>
-          #avgInferenceTime {
-            margin-top: 100rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-        </style>
-
-        <div id="avgInferenceTime" class="avgInferenceTime">
-          <h2 class="inferenceTimeData">Average Inference Time : 0.03s.</h2>
-        </div> <!-- This will display the average inference time -->
-      </div>
-
-      <!-- Right Column: Charts -->
-      <div class="min-h-screen grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-        <!-- Existing Content -->
-
-        <!-- Right Column: Charts -->
-        <div
-          class="mt-20 bg-gradient-to-br from-[#333333] to-[#444444] shadow-box rounded-3xl p-6 md:col-span-3 relative-position transition-all duration-500"
-          style="transition: all 0.5s ease; box-shadow: 0 0 0 rgba(0, 0, 0, 0)"
-          onmouseover="this.style.boxShadow='0 4px 30px #c1e7ec';"
-          onmouseout="this.style.boxShadow='0 0 0 rgba(0, 0, 0, 0)';"
-        >
-          <h2 class="text-center mt-10 text-5xl font-bold mb-4">Charts</h2>
-
-          <!-- Animated Counter Div (Positioned at Top-Left) -->
-          <div
-            class="stats shadow-lg w-24 h-14 content-center absolute top-40 rounded-3xl bg-[#333333] text-white font-bold font-poppins transition-transform duration-500 ease-in-out hover:scale-105 scale-75"
-            style="right: 79px; box-shadow: 0 3px 15px rgba(255, 0, 0, 0.8)"
-            onmouseover="this.style.boxShadow='0 4px 18px rgba(255, 0, 0, 1)';"
-            onmouseout="this.style.boxShadow='0 3px 15px rgba(255, 0, 0, 0.8)';"
-          >
-            <div class="stat text-left flex items-center justify-between px-4">
-              <div class="stat-value text-sm mr-2 text-white" id="count">0</div>
-              <!-- Eye Icon -->
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-10 w-10 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                />
-              </svg>
-            </div>
-          </div>
-
-          <!-- Moving Pie Chart -->
-          <div class="mt-20 pie-chart-container">
-            <canvas id="pieChart"></canvas>
-          </div>
-
-          <!-- Reactive Line Chart -->
-          <div class="chart-container mt-4">
-            <canvas id="lineChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <script>
-        // Counter Animation Script
-        document.addEventListener("DOMContentLoaded", function () {
-          const targetNumber = 89400;
-          const speed = 50;
-
-          const counter = document.getElementById("count");
-          let count = 0;
-
-          const updateCount = () => {
-            const increment = Math.ceil(targetNumber / speed);
-            count += increment;
-
-            if (count < targetNumber) {
-              counter.textContent = count.toLocaleString();
-              setTimeout(updateCount, 30);
-            } else {
-              counter.textContent = targetNumber.toLocaleString();
+        @keyframes sparkleFloat {
+            0% {
+                transform: translate(var(--start-x), 100vh) rotate(0deg) scale(0);
+                opacity: 0;
             }
-          };
+            10% {
+                opacity: 1;
+            }
+            50% {
+                transform: translate(var(--end-x), var(--end-y)) rotate(180deg) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(var(--final-x), -100px) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
 
-          updateCount();
-        });
-
-        // Chart.js Configuration (Remaining Existing Chart Logic)
-        const ctxPie = document.getElementById("pieChart").getContext("2d");
-        const pieChart = new Chart(ctxPie, {
-          type: "doughnut",
-          data: {
-            labels: ["Fresh", "Not Fresh"],
-            datasets: [
-              {
-                label: "Freshness Distribution",
-                data: [70, 30],
-                backgroundColor: [
-                  "#4CAF50",
-                  ctxPie.createLinearGradient(0, 0, 0, 400),
-                ],
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { labels: { color: "#FFFFFF" } },
-            },
-          },
-        });
-
-        const ctxLine = document.getElementById("lineChart").getContext("2d");
-        const gradientLine = ctxLine.createLinearGradient(0, 0, 400, 0);
-        gradientLine.addColorStop(0, "#FF0000");
-        gradientLine.addColorStop(1, "#FFFFFF");
-
-        const lineChart = new Chart(ctxLine, {
-          type: "line",
-          data: {
-            labels: ["1s", "2s", "3s", "4s", "5s", "6s", "7s"],
-            datasets: [
-              {
-                label: "Freshness Over Time",
-                data: [10, 12, 14, 18, 22, 20, 25],
-                borderColor: gradientLine,
-                backgroundColor: "rgba(255, 0, 0, 0.2)",
-                tension: 0.4,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              x: { ticks: { color: "#E0E0E0" } },
-              y: { ticks: { color: "#E0E0E0" } },
-            },
-            plugins: {
-              legend: { labels: { color: "#FFFFFF" } },
-            },
-          },
-        });
-
-        // Simulate updates every 3 seconds
-        setInterval(() => {
-          const newLabel = `${lineChart.data.labels.length + 1}s`;
-          const newData = Math.floor(Math.random() * 50);
-
-          lineChart.data.labels.push(newLabel);
-          lineChart.data.datasets[0].data.push(newData);
-          lineChart.update();
-
-          const freshValue = Math.floor(Math.random() * 100);
-          const notFreshValue = 100 - freshValue;
-          pieChart.data.datasets[0].data = [freshValue, notFreshValue];
-          pieChart.update();
-        }, 3000);
-      </script>
+<body class="bg-white font-sans text-gray-800">
+    <!-- Toggle Switch -->
+    <div id="theme-toggle" class="relative flex items-center cursor-pointer w-14 h-7 rounded-full bg-white dark:bg-gray-700">
+        <!-- Slider -->
+        <div id="slider" class="absolute top-1 left-1 w-5 h-5 rounded-full toggle-slider"></div>
+        <!-- Icons -->
+        <i id="moon-icon" class="fa-solid fa-sun toggle-icon" style="color: #ffffff;"></i>
+        <i id="sun-icon" class="fa-solid fa-moon toggle-icon" style="color: #C92525;"></i>
     </div>
+
+    <!-- Main Content -->
+    <main class="text-center flex flex-col items-center justify-center">
+        <!-- Heading -->
+        <h1 class="font-bold font-dirtyline mb-10 text-[#C92525] text-[15vw] md:text-[11rem]">
+            A
+            <span class="atyp-font text-[7vw] md:text-[8rem] md:-ml-10 mb-5 hidden md:inline">quagrade</span>
+        </h1>
+        
+        <!-- Description -->
+        <p class="text-base md:text-xl lg:text-xl -mt-12 md:-mt-16 lg:-mt-30 font-poppins text-gray-600 px-4 sm:px-6 md:px-8 max-w-3xl mx-auto">
+            Your trusted fish freshness grading checker!
+        </p>
+
+        <div class="flex flex-col gap-3 mt-6 px-4 w-full max-w-[180px] sm:max-w-xs mx-auto">
+          <!-- Scan Now Button -->
+          <a href="/page2" class="scan-btn relative bg-[#C92525] text-white font-poppins font-bold py-3 sm:py-4 px-6 sm:px-10 rounded-full hover:bg-[#A61F1F] transition-all duration-300 text-xs sm:text-sm group">
+              <span class="flex items-center justify-center">
+                  <span class="btn-text">Scan!</span>
+              </span>
+          </a>
+          
+          <!-- Dashboard Button -->
+          <a href="/page2" class="dashboard-btn relative border-4 border-[#C92525] font-poppins font-bold py-3 sm:py-4 px-6 sm:px-10 rounded-full transition-all duration-300 text-xs sm:text-sm group">
+              <span class="flex items-center justify-center">
+                  <span class="btn-text">Dashboard</span>
+              </span>
+          </a>
+      </div>
+      
+        
+    </main>
+
+    <div class="bubble-container"></div>
+    <div class="sparkle-container"></div>
 
     <script>
-      // Original JavaScript logic provided
-      const uploadForm = document.getElementById("uploadForm");
-      const batchForm = document.getElementById("batchForm");
-      const resultDiv = document.getElementById("resultDiv");
-      const resultData = document.getElementById("resultData");
-      const videoResultData = document.getElementById("videoResultData");
-      const captureSection = document.getElementById("captureSection");
-      const videoSection = document.getElementById("videoSection");
-      const webcam = document.getElementById("webcam");
-      const videoStream = document.getElementById("videoStream");
-      const snapshot = document.getElementById("snapshot");
-      const capture = document.getElementById("capture");
-      const startWebcam = document.getElementById("startWebcam");
-      const startVideo = document.getElementById("startVideo");
-      const uploadTab = document.getElementById("uploadTab");
-      const captureTab = document.getElementById("captureTab");
-      const batchTab = document.getElementById("batchTab");
-      const videoTab = document.getElementById("videoTab");
+        const themeToggle = document.getElementById('theme-toggle');
+        const slider = document.getElementById('slider');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
 
-      let streaming = false;
-
-      const toggleResultIcon = document.getElementById("chevronIcon");
-      const inferenceResultSection = document.getElementById("inferenceResult");
-
-      // Toggle visibility and animate chevron
-      toggleResultIcon.addEventListener("click", () => {
-        // Check if the result section is currently visible
-        const isHidden = inferenceResultSection.style.display === "none";
-
-        if (isHidden) {
-          // Show the inference result section
-          inferenceResultSection.style.display = "flex";
-          // Rotate chevron to point up
-          toggleResultIcon.classList.remove("fa-chevron-up");
-          toggleResultIcon.classList.add("fa-chevron-down");
-        } else {
-          // Hide the inference result section
-          inferenceResultSection.style.display = "none";
-          // Rotate chevron to point down
-          toggleResultIcon.classList.remove("fa-chevron-down");
-          toggleResultIcon.classList.add("fa-chevron-up");
-        }
-      });
-
-      document.addEventListener("DOMContentLoaded", () => {
-        // Initialize default state on page load
-        setDefaultState();
-      });
-
-      // Helper function to set the default state with a placeholder
-      function setDefaultState() {
-        const legendContainer = document.getElementById("qualityLegend");
-
-        if (!legendContainer) {
-          console.error("Element with ID 'qualityLegend' not found.");
-          return;
-        }
-
-        legendContainer.innerHTML = `
-    <div class="not-available">
-        <div class="semi-transparent-container">
-              <img src="{{ url_for('static', filename='assets/empty-box.png') }}" class="not-available-image" alt="No data">
-            <span class="not-available-text" style="font-size: 0.75rem">Empty or no predictions available. Please upload or capture an image.</span>
-        </div>
-    </div>
-  `;
-      }
-
-      // Function to clean the label
-      function cleanLabel(label) {
-        // Step 1: Replace all hyphens with spaces for general readability
-        let processedLabel = label.replaceAll("-", " ");
-
-        // Step 2: Remove numbers that are connected to the "to" keyword (e.g., "6 to 10")
-        processedLabel = processedLabel.replace(/\d+\s+to\s+\d+/g, "");
-
-        // Step 3: Move numbers that were between hyphens into square brackets
-        // This finds numbers that were originally between hyphens and puts them in [ ]
-        processedLabel = processedLabel.replace(/\b(\d+)\b/g, "[$1]");
-
-        // Step 4: Remove any extra whitespace that may have been introduced
-        return processedLabel.trim();
-      }
-
-      // Function to get contrasting text color (black or white) based on background color
-      function getContrastColor(r, g, b) {
-        const brightness = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-        return brightness < 128 ? "#FFFFFF" : "#000000";
-      }
-
-      // Define a distinct color for each class
-      const classColors = {
-        "BANGUS -0 to 5 - Spoiled-": "#FF5733",
-        "BANGUS -11 to 12 - Extremely Fresh-": "#33FF57",
-        "BANGUS -6 to 10 - Fresh-": "#3357FF",
-        "EYE -0 - Unacceptable-": "#FF33A1",
-        "EYE -1 - Poor Quality-": "#FF8C00",
-        "EYE -2 - Marginal-": "#8C33FF",
-        "EYE -3 - Acceptable-": "#FFD700",
-        "EYE -4 - Good Quality-": "#FF6347",
-        "EYE -5 - High Quality-": "#4682B4",
-        "EYE -6 - Prime Quality-": "#00FF7F",
-        "SKIN -0 - Unacceptable-": "#800000",
-        "SKIN -1 - Poor Quality-": "#B8860B",
-        "SKIN -2 - Marginal-": "#008080",
-        "SKIN -3 - Acceptable-": "#FF4500",
-        "SKIN -4 - Good Quality-": "#9400D3",
-        "SKIN -5 - High Quality-": "#5F9EA0",
-        "SKIN -6 - Prime Quality-": "#D2691E",
-        "TILAPIA -0 to 5 - Spoiled-": "#808000",
-        "TILAPIA -11 to 12 - Extremely Fresh-": "#CD5C5C",
-        "TILAPIA -6 to 10 - Fresh-": "#2E8B57",
-      };
-
-      const classShades = {}; // Store assigned colors for each class
-
-      function generateQualityLegend(predictions) {
-        const legendContainer = document.getElementById("qualityLegend");
-
-        if (!legendContainer) {
-          console.error("Element with ID 'qualityLegend' not found.");
-          return;
-        }
-
-        // Clear previous content
-        legendContainer.innerHTML = "";
-
-        if (!predictions || predictions.length === 0) {
-          setDefaultState();
-          return;
-        }
-
-        const labelCounts = {};
-
-        predictions.forEach((prediction) => {
-          const label = prediction.class;
-
-          // Increment count for each unique label
-          labelCounts[label] = (labelCounts[label] || 0) + 1;
-
-          // Assign color from classColors or a fallback color if undefined
-          if (!classShades[label]) {
-            classShades[label] = classColors[label] || "#808080"; // Default to grey if not found
-          }
+        // Track mouse position for radial gradient effect
+        document.addEventListener('mousemove', (e) => {
+            document.body.style.setProperty('--mouse-x', `${e.clientX}px`);
+            document.body.style.setProperty('--mouse-y', `${e.clientY}px`);
         });
 
-        // Create the quality legend
-        Object.keys(labelCounts).forEach((quality) => {
-          const count = labelCounts[quality];
-          const shade = classShades[quality];
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('bg-white');
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('text-gray-800');
+            document.body.classList.toggle('text-white');
 
-          const legendItem = document.createElement("div");
-          legendItem.classList.add("legend-item");
+            // Toggle the slider position
+            slider.classList.toggle('dark-slider');
 
-          const colorBox = document.createElement("div");
-          colorBox.style.backgroundColor = shade;
-          colorBox.classList.add("color-box");
-
-          const labelText = document.createElement("span");
-
-          // Clean the label and assign the cleaned label text
-          const cleanedLabel = cleanLabel(quality);
-          labelText.innerText = `${cleanedLabel} (${count})`;
-
-          console.log(cleanedLabel);
-
-          legendItem.appendChild(colorBox);
-          legendItem.appendChild(labelText);
-
-          legendContainer.appendChild(legendItem);
+            // Toggle the button background color in dark mode
+            themeToggle.classList.toggle('dark');
         });
 
-        if (Object.keys(labelCounts).length === 0) {
-          setDefaultState();
-        }
-      }
-
-      function displayImageWithBoundingBoxes(
-        imageUrl,
-        predictions,
-        targetWidth = 640,
-        targetHeight = 640
-      ) {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const img = new Image();
-
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-
-          predictions.forEach((prediction) => {
-            const {
-              x,
-              y,
-              width,
-              height,
-              class: label,
-              confidence,
-            } = prediction;
-
-            // Assign color from predefined colors or fallback color
-            if (!classShades[label]) {
-              classShades[label] = classColors[label] || "#808080"; // Default to grey if not found
-            }
-
-            const shade = classShades[label];
-            const [r, g, b] = shade
-              .slice(1)
-              .match(/.{2}/g)
-              .map((hex) => parseInt(hex, 16));
-            const textColor = getContrastColor(r, g, b);
-
-            // Draw bounding box
-            ctx.strokeStyle = shade;
-            ctx.lineWidth = 3;
-            ctx.strokeRect(x - width / 2, y - height / 2, width, height);
-
-            const text = filterLabel(label, confidence);
-
-            ctx.font = "bold 14px Arial";
-            const textWidth = ctx.measureText(text).width;
-            const textHeight = 12;
-
-            // Draw label background and text
-            ctx.fillStyle = shade;
-            ctx.fillRect(
-              x - width / 2,
-              y - height / 2 - textHeight - 4,
-              textWidth + 2,
-              textHeight + 4
-            );
-
-            ctx.fillStyle = textColor;
-            ctx.fillText(text, x - width / 2, y - height / 1.85);
-          });
-
-          // Resize canvas proportionally
-          const resizedCanvas = document.createElement("canvas");
-          const resizedCtx = resizedCanvas.getContext("2d");
-          resizedCanvas.width = targetWidth;
-          resizedCanvas.height = targetHeight;
-
-          resizedCtx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
-
-          // Append the resized canvas to the image wrapper
-          const imageWrapper = document.getElementById("imageWrapper");
-          imageWrapper.innerHTML = ""; // Clear previous image
-          imageWrapper.appendChild(resizedCanvas);
-        };
-
-        img.src = imageUrl;
-      }
-
-      // Function to filter and format the label dynamically
-      function filterLabel(rawLabel, confidence) {
-        const confidencePercentage = (confidence * 100).toFixed(1); // Format confidence as percentage
-        let processedLabel = rawLabel.replaceAll(" ", "");
-        const labelParts = processedLabel.split("-");
-
-        let classLabel = labelParts[0]; // e.g., "TILAPIA", "SKIN", "EYE"
-        let qualityLabel = "";
-
-        if (labelParts.length > 2) {
-          qualityLabel = labelParts[2].replace("-", ""); // e.g., "Acceptable"
-        } else if (labelParts.length === 2) {
-          qualityLabel = labelParts[1].replace("-", ""); // e.g., "Excellent"
+        // Bubble effect
+        function createBubble() {
+            const bubbleContainer = document.querySelector('.bubble-container');
+            const bubble = document.createElement('div');
+            const size = Math.random() * 40 + 20;
+            const left = Math.random() * 100;
+            
+            bubble.className = 'bubble';
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.style.left = `${left}%`;
+            bubble.style.animationDuration = `${Math.random() * 4 + 4}s`;
+            
+            bubbleContainer.appendChild(bubble);
+            
+            setTimeout(() => {
+                bubble.remove();
+            }, 8000);
         }
 
-        // Return formatted string with confidence
-        return `${classLabel} (${confidencePercentage}%)`;
-      }
-
-      let currentStream = null;
-
-      startWebcam.addEventListener("click", async () => {
-        if (currentStream) {
-          // Stop the webcam
-          const tracks = currentStream.getTracks();
-          tracks.forEach((track) => track.stop());
-          webcam.classList.add("hidden");
-          capture.classList.add("hidden");
-          startWebcam.textContent = "Start Webcam"; // Change button text back
-          currentStream = null; // Reset the stream
-        } else {
-          // Start the webcam
-          try {
-            currentStream = await navigator.mediaDevices.getUserMedia({
-              video: true,
-            });
-            webcam.srcObject = currentStream;
-            webcam.classList.remove("hidden");
-            capture.classList.remove("hidden");
-            startWebcam.textContent = "Stop Webcam"; // Change button text to "Stop Webcam"
-          } catch (error) {
-            console.error("Webcam access error:", error);
-            alert(
-              "Failed to access the camera. Please allow permissions and try again."
-            );
-          }
-        }
-      });
-
-      async function analyzeFrame() {
-        if (!streaming) return;
-
-        const videoCanvas = document.createElement("canvas");
-        videoCanvas.width = 640;
-        videoCanvas.height =
-          (640 / videoStream.videoWidth) * videoStream.videoHeight;
-        const videoContext = videoCanvas.getContext("2d");
-        videoContext.drawImage(
-          videoStream,
-          0,
-          0,
-          videoCanvas.width,
-          videoCanvas.height
-        );
-
-        videoCanvas.toBlob(async (blob) => {
-          const formData = new FormData();
-          formData.append("file", blob, "frame.jpg");
-
-          try {
-            const response = await fetch("/upload-single-image", {
-              method: "POST",
-              body: formData,
-            });
-
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-
-            // stringifying the json data.
-            const data = await response.json();
-            videoResultData.textContent = JSON.stringify(data, null, 2);
-          } catch (error) {
-            console.error("Error:", error);
-          }
-        }, "image/jpeg");
-
-        setTimeout(analyzeFrame, 500); // Process a frame every 500ms, to not bombard the Inference API Endpoint
-      }
-      // END OF HELPER FUNCTIONS ZONE
-
-      // Show both scrollbars when user hovers
-      resultData.addEventListener("mouseenter", () => {
-        resultData.style.overflowY = "scroll"; // Enable vertical scrollbar
-        resultData.style.overflowX = "scroll"; // Enable horizontal scrollbar
-      });
-
-      // Hide both scrollbars when the mouse leaves
-      resultData.addEventListener("mouseleave", () => {
-        resultData.style.overflowY = "hidden"; // Hide vertical scrollbar
-        resultData.style.overflowX = "hidden"; // Hide horizontal scrollbar
-      });
-
-      // Ensure scrollbars remain visible while actively scrolling
-      resultData.addEventListener("scroll", () => {
-        resultData.style.overflowY = "scroll";
-        resultData.style.overflowX = "scroll";
-      });
-
-      // Tab Switching
-      const allTabs = [uploadTab, captureTab, batchTab, videoTab];
-      const sections = [uploadForm, captureSection, batchForm, videoSection];
-
-      // Helper function to stop all camera streams
-      function stopAllCameraStreams() {
-        // Stop webcam stream
-        if (webcam.srcObject) {
-          webcam.srcObject.getTracks().forEach((track) => track.stop());
-          webcam.srcObject = null;
+        // Create bubbles periodically
+        setInterval(createBubble, 300); // Creates a new bubble every 300ms
+        
+        // Create initial set of bubbles
+        for(let i = 0; i < 15; i++) {
+            setTimeout(createBubble, i * 300);
         }
 
-        // Stop video stream
-        if (videoStream.srcObject) {
-          videoStream.srcObject.getTracks().forEach((track) => track.stop());
-          videoStream.srcObject = null;
-          streaming = false;
+        // Enhanced sparkle effect
+        function createSparkle() {
+            const container = document.querySelector('.sparkle-container');
+            const sparkle = document.createElement('div');
+            const size = Math.random() * 15 + 5;
+            
+            // Random shape selection
+            const shapes = ['diamond', 'star', 'circle'];
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+            
+            // Random starting position
+            const startX = Math.random() * window.innerWidth;
+            const endX = startX + (Math.random() - 0.5) * 200;
+            const endY = Math.random() * window.innerHeight * 0.6;
+            const finalX = endX + (Math.random() - 0.5) * 200;
+            
+            sparkle.className = `sparkle ${shape}`;
+            sparkle.style.width = `${size}px`;
+            sparkle.style.height = `${size}px`;
+            sparkle.style.setProperty('--start-x', `${startX}px`);
+            sparkle.style.setProperty('--end-x', `${endX}px`);
+            sparkle.style.setProperty('--end-y', `${endY}px`);
+            sparkle.style.setProperty('--final-x', `${finalX}px`);
+            
+            // Add subtle glow effect
+            sparkle.style.filter = `blur(${Math.random() * 0.5}px) brightness(${1 + Math.random()})`;
+            
+            container.appendChild(sparkle);
+            
+            // Remove sparkle after animation
+            setTimeout(() => {
+                sparkle.remove();
+            }, 6000);
         }
-      }
 
-      allTabs.forEach((tab, index) => {
-        tab.addEventListener("click", () => {
-          // Check if switching to Upload or Batch tab
-          if (tab === uploadTab || tab === batchTab) {
-            stopAllCameraStreams();
-            // Reset UI elements
-            webcam.classList.add("hidden");
-            capture.classList.add("hidden");
-          }
-
-          sections.forEach((section, i) => {
-            if (index === i) {
-              section.classList.remove("hidden");
-              allTabs[i].classList.add("active");
-            } else {
-              section.classList.add("hidden");
-              allTabs[i].classList.remove("active");
-            }
-          });
-          resultDiv.classList.add("hidden"); // Hide result when switching tabs
-          setDefaultState();
-        });
-      });
-
-      // Capture Image
-      capture.addEventListener("click", () => {
-        const context = snapshot.getContext("2d");
-        snapshot.width = webcam.videoWidth;
-        snapshot.height = webcam.videoHeight;
-        context.drawImage(webcam, 0, 0, snapshot.width, snapshot.height);
-
-        snapshot.toBlob(async (blob) => {
-          const formData = new FormData();
-          formData.append("file", blob, "snapshot.jpg");
-
-          try {
-            const response = await fetch("/upload-single-image", {
-              method: "POST",
-              body: formData,
-            });
-
-            if (!response.ok) {
-              throw new Error("Upload failed.");
-            }
-
-            const data = await response.json();
-            resultData.textContent = JSON.stringify(data, null, 2);
-            resultDiv.classList.remove("hidden");
-
-            let predictionData = data.predictions;
-            const file = formData.get("file");
-            const imageUrl = URL.createObjectURL(file);
-
-            displayImageWithBoundingBoxes(imageUrl, predictionData);
-            generateQualityLegend(predictionData); // Update legend dynamically
-          } catch (error) {
-            console.error("Error uploading snapshot:", error);
-            alert("Snapshot upload failed.");
-          }
-        }, "image/jpeg");
-      });
-
-      // Enhanced progress update function with synchronized slower movement
-      function updateProgress(progressBar, progressText, progress) {
-        const progressElement = progressBar.querySelector(".progress-bar");
-
-        // Show progress elements
-        progressBar.style.display = "block";
-        progressText.style.display = "block";
-
-        const currentWidth = parseFloat(progressElement.style.width) || 0;
-        const targetWidth = progress;
-        const duration = 1500; // Total animation duration in milliseconds
-        const startTime = performance.now();
-
-        const animate = (currentTime) => {
-          const elapsed = currentTime - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-
-          const currentProgress =
-            currentWidth + (targetWidth - currentWidth) * progress;
-
-          progressElement.style.width = `${currentProgress}%`;
-          progressText.textContent = `${Math.round(currentProgress)}%`;
-
-          if (progress < 1) {
-            requestAnimationFrame(animate);
-          }
-        };
-
-        requestAnimationFrame(animate);
-      }
-
-      // Modified upload form handler
-      uploadForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const formData = new FormData(uploadForm);
-        const progressBar = document.getElementById("uploadProgress");
-        const progressText = document.getElementById("uploadProgressText");
-
-        try {
-          const xhr = new XMLHttpRequest();
-          xhr.open("POST", "/upload-single-image", true);
-
-          xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-              const progress = (e.loaded / e.total) * 100;
-              updateProgress(progressBar, progressText, progress);
-            }
-          };
-
-          xhr.onload = async () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              resultData.textContent = JSON.stringify(data, null, 2);
-              resultDiv.classList.remove("hidden");
-
-              let predictionData = data.predictions;
-              const file = formData.get("file");
-              const imageUrl = URL.createObjectURL(file);
-
-              displayImageWithBoundingBoxes(imageUrl, predictionData);
-              generateQualityLegend(predictionData);
-
-              // Calculate average inference time
-              let totalInferenceTime = 0;
-              let totalPredictions = predictionData.length;
-
-              predictionData.forEach((prediction) => {
-                totalInferenceTime += prediction.time; // Assuming each prediction has a "time" field in ms
-              });
-
-              let avgInferenceTime =
-                totalPredictions > 0
-                  ? totalInferenceTime / totalPredictions
-                  : 0;
-
-              // Display the average inference time on the frontend
-              avgInferenceTimeDisplay.textContent = `Average Inference Time: ${avgInferenceTime.toFixed(
-                2
-              )} ms`;
-
-              // Hide progress bar after completion
-              setTimeout(() => {
-                progressBar.style.display = "none";
-                progressText.style.display = "none";
-              }, 1000);
-            }
-          };
-
-          xhr.send(formData);
-        } catch (error) {
-          console.error("Error:", error);
+        // Create sparkles periodically
+        setInterval(createSparkle, 200);
+        
+        // Create initial set of sparkles
+        for(let i = 0; i < 20; i++) {
+            setTimeout(createSparkle, i * 200);
         }
-      });
-
-      // Modified batch form handler
-      batchForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const formData = new FormData(batchForm);
-        const progressBar = document.getElementById("batchProgress");
-        const progressText = document.getElementById("batchProgressText");
-
-        try {
-          const xhr = new XMLHttpRequest();
-          xhr.open("POST", "/upload-batch-images", true);
-
-          xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-              const progress = (e.loaded / e.total) * 100;
-              updateProgress(progressBar, progressText, progress);
-            }
-          };
-
-          xhr.onload = async () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              resultData.textContent = JSON.stringify(data, null, 2);
-              resultDiv.classList.remove("hidden");
-
-              // Hide progress bar after completion
-              setTimeout(() => {
-                progressBar.style.display = "none";
-                progressText.style.display = "none";
-              }, 1000);
-            }
-          };
-
-          xhr.send(formData);
-        } catch (error) {
-          console.error("Error:", error);
-        }
-      });
-
-      // Start or stop real-time video analysis
-      startVideo.addEventListener("click", async () => {
-        if (!streaming) {
-          // Start video stream
-          try {
-            currentStream = await navigator.mediaDevices.getUserMedia({
-              video: true,
-            });
-            videoStream.srcObject = currentStream;
-            streaming = true;
-            startVideo.textContent = "Stop Realtime Inference"; // Change button text to "Stop Video"
-            analyzeFrame(); // Start analyzing frames (or your real-time processing)
-          } catch (error) {
-            console.error("Error starting video stream:", error);
-            alert(
-              "Failed to access the camera. Please allow permissions and try again."
-            );
-          }
-        } else {
-          // Stop video stream
-          const tracks = currentStream.getTracks();
-          tracks.forEach((track) => track.stop());
-          videoStream.srcObject = null;
-          streaming = false;
-          startVideo.textContent = "Start Realtime Inference"; // Change button text back to "Start Video"
-        }
-      });
     </script>
+</body>
 
-    <div class="overlay" id="overlay"></div>
-    <div class="popup" id="popup">
-      <h2 class="text-xl font-bold mb-4" id="popupTitle">Select an Option</h2>
-      <form id="popupForm">
-        <div id="popupOptions" class="popup-options"></div>
-        <button
-          type="button"
-          id="closePopup"
-          class="mt-4 px-4 py-2 rounded bg-red-600 text-white"
-        >
-          Submit
-        </button>
-      </form>
-    </div>
-  </body>
 </html>
+	
