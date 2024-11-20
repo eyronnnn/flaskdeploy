@@ -2458,6 +2458,40 @@
         });
     </script>
 
+<script>
+        async function startRealTimeDetection() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.querySelector('#realTimeVideo');
+                video.srcObject = stream;
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                const detectionInterval = setInterval(() => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(async blob => {
+                        const formData = new FormData();
+                        formData.append('file', blob, 'frame.jpg');
+                        const response = await fetch('/upload-single-image', { method: 'POST', body: formData });
+                        const result = await response.json();
+                        displayDetectionResults(result);
+                    }, 'image/jpeg');
+                }, 500);
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+            }
+        }
+
+        function displayDetectionResults(result) {
+            const resultContainer = document.querySelector('#detectionResults');
+            resultContainer.innerHTML = JSON.stringify(result, null, 2);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            startRealTimeDetection();
+        });
+</script>
 </body>
 </html>
 
@@ -2942,6 +2976,40 @@
             setTimeout(createSparkle, i * 200);
         }
     </script>
+<script>
+        async function startRealTimeDetection() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                const video = document.querySelector('#realTimeVideo');
+                video.srcObject = stream;
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                const detectionInterval = setInterval(() => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(async blob => {
+                        const formData = new FormData();
+                        formData.append('file', blob, 'frame.jpg');
+                        const response = await fetch('/upload-single-image', { method: 'POST', body: formData });
+                        const result = await response.json();
+                        displayDetectionResults(result);
+                    }, 'image/jpeg');
+                }, 500);
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+            }
+        }
+
+        function displayDetectionResults(result) {
+            const resultContainer = document.querySelector('#detectionResults');
+            resultContainer.innerHTML = JSON.stringify(result, null, 2);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            startRealTimeDetection();
+        });
+</script>
 </body>
 
 </html>
