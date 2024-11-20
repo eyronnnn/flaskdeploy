@@ -326,6 +326,14 @@ Detection results will appear here...</pre
         }
       });
 
+      const frameVideo = document.getElementById("frameVideo");
+      const frameCanvas = document.getElementById("frameCanvas");
+      const frameDetectionResult = document.getElementById(
+        "frameDetectionResult"
+      );
+      let currentStream = null;
+      let streaming = false;
+
       // Simplified labels with colors for quality
       const simplifiedLabels = {
         "BANGUS - Spoiled": { label: "BANGUS (Spoiled)", color: "#FF5733" },
@@ -345,6 +353,70 @@ Detection results will appear here...</pre
           color: "#D2691E",
         },
       };
+
+      async function startFrameByFrame() {
+        try {
+          currentStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          frameVideo.srcObject = currentStream;
+          streaming = true;
+          document.getElementById("startDetection").textContent =
+            "Stop Detection";
+
+          analyzeFrame(); // Begin frame analysis
+        } catch (error) {
+          console.error("Camera access failed:", error);
+          alert(
+            "Camera access denied or not available. Please check permissions."
+          );
+        }
+      }
+
+      function stopFrameByFrame() {
+        if (currentStream) {
+          const tracks = currentStream.getTracks();
+          tracks.forEach((track) => track.stop());
+        }
+        streaming = false;
+        frameVideo.srcObject = null;
+        document.getElementById("startDetection").textContent =
+          "Start Detection";
+      }
+
+      async function analyzeFrame() {
+        if (!streaming) return;
+
+        const context = frameCanvas.getContext("2d");
+        frameCanvas.width = frameVideo.videoWidth;
+        frameCanvas.height = frameVideo.videoHeight;
+        context.drawImage(
+          frameVideo,
+          0,
+          0,
+          frameCanvas.width,
+          frameCanvas.height
+        );
+
+        frameCanvas.toBlob(async (blob) => {
+          const formData = new FormData();
+          formData.append("file", blob, "frame.jpg");
+
+          try {
+            const response = await fetch("/upload-single-image", {
+              method: "POST",
+              body: formData,
+            });
+
+            const data = await response.json();
+            displayResults(data);
+          } catch (error) {
+            console.error("Error analyzing frame:", error);
+          }
+        });
+
+        setTimeout(analyzeFrame, 500); // Continue analyzing every 500ms
+      }
 
       function displayResults(data) {
         const resultContainer = document.getElementById("frameDetectionResult");
@@ -381,6 +453,16 @@ Detection results will appear here...</pre
           resultContainer.textContent = "No predictions found.";
         }
       }
+
+      document
+        .getElementById("startDetection")
+        .addEventListener("click", () => {
+          if (streaming) {
+            stopFrameByFrame();
+          } else {
+            startFrameByFrame();
+          }
+        });
     </script>
   </body>
 </html>

@@ -21,7 +21,7 @@ def home():
 
 @app.route('/realtime-detection')
 def realtime_detection():
-    return render_template('realtime.html')
+    return render_template('TEST.html')
 
 
 
