@@ -2579,24 +2579,37 @@ Detection results will appear here...</pre
       const sunIcon = document.getElementById("sun-icon");
       const moonIcon = document.getElementById("moon-icon");
 
-      // Function to enable dark mode
+      // Enable Dark Mode
       function enableDarkMode() {
         document.body.classList.add("dark-mode");
         localStorage.setItem("darkMode", "enabled");
       }
 
-      // Function to disable dark mode
+      // Disable Dark Mode
       function disableDarkMode() {
         document.body.classList.remove("dark-mode");
-        localStorage.setItem("darkMode", null);
+        localStorage.setItem("darkMode", "disabled");
       }
 
-      // Check if dark mode is enabled in localStorage
-      if (localStorage.getItem("darkMode") === "enabled") {
-        enableDarkMode();
+      // Apply the user's saved preference or system preference
+      function applyTheme() {
+        const savedPreference = localStorage.getItem("darkMode");
+
+        if (savedPreference === "enabled") {
+          enableDarkMode();
+        } else if (savedPreference === "disabled") {
+          disableDarkMode();
+        } else {
+          // If no user preference, follow system preference
+          if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            enableDarkMode();
+          } else {
+            disableDarkMode();
+          }
+        }
       }
 
-      // Toggle dark mode
+      // Add event listener for the toggle button
       themeToggle.addEventListener("click", () => {
         if (document.body.classList.contains("dark-mode")) {
           disableDarkMode();
@@ -2605,24 +2618,22 @@ Detection results will appear here...</pre
         }
       });
 
-      // Optional: Add system preference detection
-      if (
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches
-      ) {
-        enableDarkMode();
-      }
-
-      // Optional: Listen for system theme changes
+      // Listen for system preference changes (only if no user preference is saved)
       window
         .matchMedia("(prefers-color-scheme: dark)")
         .addEventListener("change", (e) => {
-          if (e.matches) {
-            enableDarkMode();
-          } else {
-            disableDarkMode();
+          const savedPreference = localStorage.getItem("darkMode");
+          if (!savedPreference) {
+            if (e.matches) {
+              enableDarkMode();
+            } else {
+              disableDarkMode();
+            }
           }
         });
+
+      // Apply theme on page load
+      applyTheme();
     </script>
 
     <div class="status-container">
