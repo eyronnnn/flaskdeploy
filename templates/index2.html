@@ -1795,7 +1795,7 @@
             </button>
             <button onclick="window.location.href='/realtime-detection'">
               <i class="fas fa-film"></i>
-              Frame-by-Frame<br />Detection
+              Real-Time<br />Detection
             </button>
             <button onclick="showModal('captureImageModal')">
               <i class="fas fa-camera"></i>
@@ -1805,7 +1805,7 @@
         </div>
       </div>
 
-      <!-- Modals -->
+      <!-- SINGLE IMAGE -->
       <div id="singleImageModal" class="modal">
         <div class="modal-content">
           <h2>Upload Single Image</h2>
@@ -1869,6 +1869,7 @@
         </div>
       </div>
 
+      <!-- BATCH IMAGE -->
       <div id="batchImagesModal" class="modal">
         <div class="modal-content">
           <h2>Upload Batch Images</h2>
@@ -1930,7 +1931,8 @@
         </div>
       </div>
 
-      <div id="frameByFrameModal" class="modal">
+      <!-- REAL-TIME DETECTION -->
+      <div id="RealTimeModal" class="modal">
         <div class="modal-content">
           <h2>Frame-by-Frame Detection</h2>
 
@@ -1945,7 +1947,7 @@
             <div class="input-group">
               <label class="input-label">Camera Feed</label>
               <button id="startDetection" onclick="toggleFrameByFrame()">
-                Start Frame Detection
+                Start Real-Time Detection
               </button>
               <video id="frameVideo" autoplay></video>
               <canvas id="frameCanvas" style="display: none"></canvas>
@@ -1973,12 +1975,13 @@ Detection results will appear here...</pre
             </div>
           </div>
 
-          <button class="close-btn" onclick="closeModal('frameByFrameModal')">
+          <button class="close-btn" onclick="closeModal('RealTimeModal')">
             Close
           </button>
         </div>
       </div>
 
+      <!-- CAPTURE IMAGE -->
       <div id="captureImageModal" class="modal">
         <div class="modal-content">
           <h2>Capture Image</h2>
@@ -2122,24 +2125,21 @@ Detection results will appear here...</pre
           xhr.addEventListener("load", function () {
             if (xhr.status === 200) {
               const data = JSON.parse(xhr.responseText);
-              document.getElementById("captureImageResult").textContent =
-                JSON.stringify(data, null, 2);
 
-              // Draw bounding boxes
-              if (data.predictions) {
-                const img = document.querySelector(
-                  "#captureImageModal .preview-image"
-                );
-                drawBoundingBoxes(
-                  "capturePreview-container",
-                  data.predictions,
-                  img.naturalWidth,
-                  img.naturalHeight
-                );
-              }
+              // Format results to display as "Label (Status) - Confidence %"
+              const formattedResults = data.predictions.map((prediction) => {
+                const label = prediction.class; // Adjust this based on your backend response
+                const confidence = (prediction.confidence * 100).toFixed(2); // Convert confidence to percentage
+                return `${label} - Confidence ${confidence}%`;
+              });
+
+              // Update the results container
+              document.getElementById("singleImageResult").textContent =
+                formattedResults.join("\n");
             } else {
-              document.getElementById("captureImageResult").textContent =
-                "Error: " + xhr.statusText;
+              document.getElementById(
+                "singleImageResult"
+              ).textContent = `Error: ${xhr.statusText}`;
             }
             setTimeout(() => {
               progressContainer.classList.remove("show");
@@ -2214,19 +2214,16 @@ Detection results will appear here...</pre
         }
 
         // Handle camera streams
-        if (
-          modalId === "frameByFrameModal" ||
-          modalId === "captureImageModal"
-        ) {
+        if (modalId === "RealTimeModal" || modalId === "captureImageModal") {
           const stream =
-            modalId === "frameByFrameModal"
+            modalId === "RealTimeModal"
               ? frameVideo.srcObject
               : captureVideo.srcObject;
           if (stream) {
             const tracks = stream.getTracks();
             tracks.forEach((track) => track.stop());
           }
-          if (modalId === "frameByFrameModal") {
+          if (modalId === "RealTimeModal") {
             const stream = frameVideo.srcObject;
             if (stream) {
               const tracks = stream.getTracks();
