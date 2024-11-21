@@ -23,7 +23,13 @@ def home():
 def realtime_detection():
     return render_template('TEST.html')
 
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
 
+@app.route('/scan')
+def scan():
+    return render_template('scan.html')
 
 @app.route('/page2')
 def page2():

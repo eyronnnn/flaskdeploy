@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Responsive Sidebar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background-color: white;
+        transition: background-color 0.3s ease;
+      }
+
+      body.dark-mode {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      }
+
+      #theme-toggle {
+        position: relative;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        background-color: white;
+      }
+
+      #slider {
+        position: absolute;
+        top: 50%;
+        left: 4px;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        background-color: red;
+        border-radius: 50%;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+        z-index: 10;
+      }
+
+      body.dark-mode #theme-toggle {
+        background-color: #3c3c3c;
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+      }
+
+      body.dark-mode #slider {
+        transform: translate(34px, -50%);
+        background-color: white;
+      }
+
+      /* Sun and Moon Icons */
+      #sun-icon,
+      #moon-icon {
+        position: absolute;
+        font-size: 16px;
+        transition: opacity 0.3s ease;
+      }
+
+      #sun-icon {
+        left: 8px;
+        color: white;
+        opacity: 0;
+      }
+
+      #moon-icon {
+        right: 8px;
+        color: red;
+        opacity: 1;
+      }
+
+      /* Dark Mode Icon Transitions */
+      body.dark-mode #sun-icon {
+        opacity: 1;
+      }
+
+      body.dark-mode #moon-icon {
+        opacity: 0;
+      }
+
+      .sidebar {
+        width: 300px;
+        background-color: #1f2327;
+        color: white;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        padding-top: 20px;
+        transition: all 0.3s ease;
+        z-index: 50;
+      }
+
+      .sidebar a {
+        color: white;
+        text-decoration: none;
+        margin: 8px 20px;
+        padding: 15px 30px;
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(
+          135deg,
+          rgba(201, 37, 37, 0.1) 0%,
+          rgba(201, 37, 37, 0.05) 100%
+        );
+        border: 1px solid rgba(201, 37, 37, 0.1);
+        font-weight: 700;
+      }
+
+      .sidebar a i {
+        margin-right: 15px;
+        font-size: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .sidebar a:hover {
+        transform: translateX(15px) scale(1.03);
+        background: linear-gradient(
+          135deg,
+          rgba(201, 37, 37, 0.2) 0%,
+          rgba(201, 37, 37, 0.15) 100%
+        );
+        box-shadow: 0 4px 15px rgba(201, 37, 37, 0.2);
+        border: 1px solid rgba(201, 37, 37, 0.2);
+        z-index: 2;
+      }
+
+      .sidebar a:hover i {
+        transform: translateX(3px);
+        color: #ff4d4d;
+      }
+
+      .sidebar a.active {
+        background: linear-gradient(
+          135deg,
+          rgba(201, 37, 37, 0.3) 0%,
+          rgba(201, 37, 37, 0.2) 100%
+        );
+        border: 1px solid rgba(201, 37, 37, 0.3);
+        box-shadow: 0 4px 15px rgba(201, 37, 37, 0.15);
+        transform: translateX(10px);
+        z-index: 3;
+      }
+
+      body.dark-mode .sidebar {
+        background-color: #1a1a1a;
+      }
+
+      .content {
+        margin-left: 300px; /* Same width as the sidebar */
+        padding: 20px; /* Optional padding for better spacing */
+        transition: margin-left 0.3s ease; /* Smooth transition */
+      }
+
+      @media (max-width: 768px) {
+        .content {
+          margin-left: 0; /* On smaller screens, remove the margin when the sidebar collapses */
+        }
+      }
+
+      /* Dashboard Styles */
+    </style>
+  </head>
+
+  <!-- BODY START -->
+  <body>
+    <!-- Mobile Navbar -->
+    <header
+      class="bg-red-800 text-white px-4 py-3 flex justify-between items-center md:hidden"
+    >
+      <h1 class="text-lg font-bold">Aquagrade</h1>
+      <button id="hamburger" class="text-2xl focus:outline-none">
+        <i class="fas fa-bars"></i>
+      </button>
+    </header>
+
+    <!-- Sidebar -->
+    <div
+      id="sidebar"
+      class="sidebar fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 md:relative md:w-64 transition-transform"
+    >
+      <!-- Logo Section -->
+      <div
+        class="flex items-center justify-center py-6 border-b border-red-700 dark:border-gray-700"
+      >
+        <img
+          src="/static/assets/logo.png"
+          alt="AquaGrade Logo"
+          class="w-35 h-auto"
+        />
+      </div>
+
+      <!-- Profile Section -->
+      <div
+        class="relative flex items-center gap-4 px-4 py-5 cursor-pointer hover:bg-red-700 dark:hover:bg-gray-700 transition"
+        onclick="toggleDropdown()"
+      >
+        <img
+          src="https://via.placeholder.com/40"
+          alt="Profile Picture"
+          class="w-12 h-12 rounded-full border-2 border-red-500"
+        />
+        <div class="flex-1">
+          <h2 class="text-sm font-semibold">John Doe</h2>
+          <p class="text-xs text-gray-300 dark:text-gray-400">View Profile</p>
+        </div>
+        <div class="text-lg font-bold">▾</div>
+
+        <!-- Dropdown Menu -->
+        <div
+          id="dropdownMenu"
+          class="absolute top-0 left-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 shadow-lg rounded-lg w-64 hidden transition-all z-50"
+        >
+          <a
+            href="#"
+            class="flex items-center gap-3 px-4 py-3 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-medium"
+          >
+            <i class="fas fa-user-cog"></i> Account Settings
+          </a>
+          <a
+            href="#"
+            class="flex items-center gap-3 px-4 py-3 hover:bg-gray-200 dark:hover:bg-gray-600 text-sm font-medium border-t dark:border-gray-600"
+          >
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </a>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <nav class="flex-1 mt-6">
+        <ul class="space-y-2 px-4">
+          <li>
+            <a href="/dashboard" class="active">
+              <i class="fas fa-chart-line"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="/scan">
+              <i class="fas fa-search"></i>
+              <span>Scan Fish</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fas fa-file-alt"></i>
+              <span>Logs</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fas fa-cogs"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Dark Mode Toggle -->
+      <div class="p-4">
+        <div
+          id="theme-toggle"
+          class="relative w-16 h-8 flex items-center bg-gray-300 dark:bg-gray-700 rounded-full p-1 cursor-pointer shadow-inner transition-all"
+        >
+          <!-- Sun Icon -->
+          <i
+            id="sun-icon"
+            class="fas fa-sun absolute left-2 text-white text-base transition-opacity opacity-0 dark:opacity-100"
+          ></i>
+          <!-- Moon Icon -->
+          <i
+            id="moon-icon"
+            class="fas fa-moon absolute right-2 text-red-500 text-base transition-opacity dark:opacity-0"
+          ></i>
+          <!-- Slider Circle -->
+          <div
+            id="slider"
+            class="absolute w-6 h-6 bg-red-500 rounded-full shadow transform transition-transform dark:bg-white"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JAVASCRIPTS START -->
+    <script>
+      // Toggle Dropdown Menu
+      function toggleDropdown() {
+        const dropdown = document.getElementById("dropdownMenu");
+        dropdown.classList.toggle("hidden");
+      }
+
+      // Sidebar toggle for mobile
+      const hamburger = document.getElementById("hamburger");
+      const sidebar = document.getElementById("sidebar");
+
+      hamburger.addEventListener("click", () => {
+        sidebar.classList.toggle("-translate-x-full");
+      });
+
+      // Highlight active link
+      const sidebarLinks = document.querySelectorAll(".sidebar a");
+      const currentPath = window.location.pathname;
+
+      sidebarLinks.forEach((link) => {
+        if (link.getAttribute("href") === currentPath) {
+          link.classList.add("active");
+        } else {
+          link.classList.remove("active");
+        }
+      });
+
+      // Dark mode toggle
+      document.addEventListener("DOMContentLoaded", () => {
+        const body = document.body;
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme === "dark" || savedTheme === null) {
+          body.classList.add("dark-mode");
+          localStorage.setItem("theme", "dark");
+        } else {
+          body.classList.remove("dark-mode");
+        }
+      });
+
+      const themeToggle = document.getElementById("theme-toggle");
+      themeToggle.addEventListener("click", () => {
+        const body = document.body;
+
+        if (body.classList.contains("dark-mode")) {
+          body.classList.remove("dark-mode");
+          localStorage.setItem("theme", "light");
+        } else {
+          body.classList.add("dark-mode");
+          localStorage.setItem("theme", "dark");
+        }
+      });
+    </script>
+  </body>
+</html>
