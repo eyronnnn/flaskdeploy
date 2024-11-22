@@ -1,0 +1,126 @@
+<!-- Footer Component -->
+<footer class="fixed bottom-0 right-0 p-4 bg-white dark:bg-black/80 rounded-tl-lg z-50 flex items-center gap-4">
+    <!-- Buy us a coffee button -->
+    <a href="#" onclick="toggleDevelopersPopup()" class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-all duration-300 rounded-full hover:bg-red-50 dark:hover:bg-white/10 group">
+      <i class="fas fa-mug-hot text-[#C92525] group-hover:scale-110 transition-transform duration-300"></i>
+      <span class="text-black dark:text-white font-poppins hidden sm:inline">Buy us a coffee</span>
+    </a>
+  
+    <!-- Divider -->
+    <div class="h-4 w-px bg-gray-300 dark:bg-gray-700"></div>
+  
+    <!-- Copyright text -->
+    <p class="font-poppins text-sm text-black dark:text-white">
+      Aquagrade Team © 2024
+    </p>
+</footer>
+
+<!-- Developers Contact Popup -->
+<div id="developersPopup" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[1000] font-poppins">
+  <div class="bg-black p-8 rounded-3xl max-w-md w-full mx-4 shadow-xl transform transition-all glow-effect">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+        <i class="fas fa-heart text-red-500 animate-pulse"></i>
+        Support Our Team
+      </h2>
+    </div>
+    
+    <div class="space-y-6">
+      <div class="p-4 bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors group">
+        <h3 class="text-lg font-semibold text-red-500 mb-2 flex items-center gap-2">
+          <i class="fas fa-laptop-code"></i>
+          Frontend Developer
+        </h3>
+        <p class="text-gray-300 flex items-center gap-2">
+          <i class="fas fa-wallet text-green-500"></i>
+          GCash: 0965-5148-956
+        </p>
+      </div>
+      
+      <div class="p-4 bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors group">
+        <h3 class="text-lg font-semibold text-red-500 mb-2 flex items-center gap-2">
+          <i class="fas fa-server"></i>
+          Backend Developer
+        </h3>
+        <p class="text-gray-300 flex items-center gap-2">
+          <i class="fas fa-wallet text-green-500"></i>
+          GCash: 0917-7589-353
+        </p>
+      </div>
+      
+      <div class="p-4 bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors group">
+        <h3 class="text-lg font-semibold text-red-500 mb-2 flex items-center gap-2">
+          <i class="fas fa-brain"></i>
+          Machine Learning Engineer
+        </h3>
+        <p class="text-gray-300 flex items-center gap-2">
+          <i class="fas fa-wallet text-green-500"></i>
+          GCash: 0934-567-8901
+        </p>
+      </div>
+    </div>
+    
+    <button onclick="toggleDevelopersPopup()" class="mt-6 w-full bg-red-500 text-white px-6 py-3 rounded-full hover:bg-red-600 transition-colors flex items-center justify-center gap-2">
+      <b>Close</b>
+    </button>
+  </div>
+</div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+  /* Ensure the footer background is white in light mode and black in dark mode */
+  footer {
+    background-color: white;
+    color: black;
+  }
+
+  footer a, footer p {
+    color: black; /* Light mode text */
+  }
+
+  /* Dark mode overrides (optional for customization) */
+  @media (prefers-color-scheme: dark) {
+    footer {
+      background-color: rgba(0, 0, 0, 0.8); /* Black with opacity for dark mode */
+    }
+
+    footer a, footer p {
+      color: white; /* Dark mode text */
+    }
+  }
+
+  /* Add gradient hover effect for the 'Buy us a coffee' button */
+  footer a:hover {
+    background: linear-gradient(135deg, rgba(201, 37, 37, 0.1) 0%, rgba(225, 57, 57, 0.1) 100%);
+  }
+
+  /* Popup animation */
+  #developersPopup {
+    transition: opacity 0.3s ease;
+  }
+
+  #developersPopup.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Add this to set Poppins as the default font for the footer and popup */
+  footer, #developersPopup {
+    font-family: 'Poppins', sans-serif;
+  }
+
+  /* Add glow effect */
+  .glow-effect {
+    box-shadow: 0 0 20px rgba(201, 37, 37, 0.5), /* Red glow */
+                0 0 40px rgba(0, 0, 0, 0.3); /* Darker outer glow */
+  }
+</style>
+
+<script>
+  function toggleDevelopersPopup() {
+    const popup = document.getElementById('developersPopup');
+    popup.classList.toggle('hidden');
+    popup.classList.toggle('flex');
+  }
+</script>
