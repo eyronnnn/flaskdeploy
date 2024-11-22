@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Realtime Scanning | Aquagrade </title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='styling-realtime/realtime-styles.css') }}">
+  <style>
+    #analysisCanvas {
+      border: 3px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <!-- Theme Toggle -->
+  <!-- <button class="theme-toggle" onclick="toggleTheme()">
+    <div class="toggle-circle"></div>
+  </button> -->
+
+  <!-- Include Sidebar -->
+  {% include 'partials/sidebar.html' %}
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">Aquagrade</div>
+    <div class="menu-icon" onclick="toggleDropdown()">
+      <i class="fa-solid fa-bars"></i>
+    </div>
+    <div class="dropdown-menu" id="dropdownMenu">
+      <a href="#"><i class="fas fa-chart-line fa-fw"></i>&nbsp; Dashboard</a>
+      <a href="#"><i class="fas fa-camera fa-fw"></i>&nbsp; Scan Now</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content pb-16">
+    <div class="main">
+      <h1>Real-Time Fish Freshness Detection</h1>
+      <div class="instructions">
+        <ul>
+          <li><strong>Prepare</strong> the fish and position it in front of your camera.</li>
+          <li><strong>Enable</strong> the camera and click "Start Detection."</li>
+          <li><strong>Review</strong> the results of the freshness detection.</li>
+        </ul>
+      </div>
+      <button class="start-detection-btn" id="startDetectionButton">
+        <i class="fa-solid fa-fish"></i> Start Realtime Detection
+      </button>
+      <div class="video-preview-container">
+        <div class="video-box">
+          <video id="videoStream" autoplay playsinline muted style="max-width: 320px; max-height: 240px;"></video>
+        </div>
+        <div class="video-box">
+          <canvas id="analysisCanvas" style="max-width: 320px; max-height: 240px;"></canvas>
+        </div>
+      </div>
+      <div class="results-container">
+        <h2>Freshness Results</h2>
+        <pre id="videoResultData">Results will appear here...</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add this right after the <body> tag -->
+  <div class="bubble-container" id="bubbleContainer"></div>
+
+  <!-- Add this right after the bubble container -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <script>
+    let streaming = false;
+    let currentStream = null;
+    let apiKey = "SUxPc1PBNC08yu5jmTnN"; // Default API key
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById("dropdownMenu");
+      dropdown.style.display = dropdown.style.display === "flex" ? "none" : "flex";
+    }
+
+    // Handle Start/Stop detection
+    document.getElementById("startDetectionButton").addEventListener("click", async () => {
+      const startButton = document.getElementById("startDetectionButton");
+      const videoElement = document.getElementById("videoStream");
+      const resultDisplay = document.getElementById("videoResultData");
+
+      if (!streaming) {
+        try {
+          currentStream = await navigator.mediaDevices.getUserMedia({ 
+            video: {
+              width: { ideal: 320 },
+              height: { ideal: 240 }
+            }
+          });
+          videoElement.srcObject = currentStream;
+          streaming = true;
+          startButton.textContent = "Stop Realtime Detection";
+          analyzeFrame();
+          startBubbles(); // Start bubble effect
+        } catch (error) {
+          console.error("Error starting video stream:", error);
+          alert("Unable to access the camera. Please allow permissions.");
+        }
+      } else {
+        const tracks = currentStream.getTracks();
+        tracks.forEach((track) => track.stop());
+        videoElement.srcObject = null;
+        streaming = false;
+        startButton.textContent = "Start Realtime Detection";
+        resultDisplay.textContent = "Results will appear here...";
+        clearInterval(bubbleInterval); // Stop bubble effect
+        document.getElementById('bubbleContainer').innerHTML = ''; // Clear bubbles
+      }
+    });
+
+    // Analyze frames in real-time
+    async function analyzeFrame() {
+      if (!streaming) return;
+
+      const videoElement = document.getElementById("videoStream");
+      const canvas = document.getElementById("analysisCanvas");
+      const ctx = canvas.getContext("2d");
+      const resultDisplay = document.getElementById("videoResultData");
+
+      if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
+        setTimeout(analyzeFrame, 500);
+        return;
+      }
+
+      canvas.width = 320;
+      canvas.height = 240;
+
+      // Draw the current video frame on the canvas
+      ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append("file", blob, "frame.jpg");
+
+        try {
+          const response = await fetch("/upload-single-image", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || `Server error: ${response.status}`);
+          }
+
+          // Draw bounding boxes
+          if (data && data.predictions && data.predictions.length > 0) {
+            const bestPrediction = data.predictions.sort((a, b) => b.confidence - a.confidence)[0];
+            drawBoundingBoxes(ctx, data.predictions);
+
+            // Check if confidence is above 40%
+            if (bestPrediction.confidence > 0.40) {
+              // Add green border to canvas
+              canvas.style.border = '3px solid #00ff00';
+              // Stop the analysis loop
+              streaming = false;
+              // Stop the video stream but keep the last frame
+              const tracks = currentStream.getTracks();
+              tracks.forEach((track) => track.stop());
+              // Update button text
+              document.getElementById("startDetectionButton").textContent = "Start Realtime Detection";
+              return;
+            }
+
+            const formattedResult = {
+              "Fish Quality": bestPrediction.class,
+              Confidence: (bestPrediction.confidence * 100).toFixed(1) + '%',
+            };
+
+            resultDisplay.textContent = Object.entries(formattedResult)
+              .map(([key, value]) => `${key}: ${value}`)
+              .join('\n');
+          } else {
+            resultDisplay.textContent = "No fish detected";
+          }
+        } catch (error) {
+          console.error("Error during frame analysis:", error);
+          resultDisplay.textContent = `Error: ${error.message}`;
+        }
+
+        if (streaming) {
+          setTimeout(analyzeFrame, 500);
+        }
+      }, "image/jpeg", 0.8);
+    }
+
+    function drawBoundingBoxes(ctx, predictions) {
+      predictions.forEach(prediction => {
+        const { x, y, width, height, class: label, confidence } = prediction;
+
+        // Calculate bounding box coordinates
+        const left = x - width / 2;
+        const top = y - height / 2;
+
+        // Draw bounding box
+        ctx.strokeStyle = "#FF0000";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(left, top, width, height);
+
+        // Draw label
+        ctx.fillStyle = "#FF0000";
+        ctx.font = "16px Arial";
+        ctx.fillText(
+          `${label} (${(confidence * 100).toFixed(1)}%)`,
+          left,
+          top > 10 ? top - 5 : top + 15
+        );
+      });
+    }
+
+    // Bubble effect
+    function createBubble() {
+      const bubbleContainer = document.getElementById('bubbleContainer');
+      const bubble = document.createElement('div');
+      const size = Math.random() * 60 + 20; // Random size between 20px and 80px
+      
+      bubble.className = 'bubble';
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${Math.random() * 2 + 3}s`; // Random duration between 3-5s
+      
+      bubbleContainer.appendChild(bubble);
+      
+      // Remove bubble after animation
+      bubble.addEventListener('animationend', () => {
+        bubble.remove();
+      });
+    }
+
+    // Create bubbles periodically
+    let bubbleInterval;
+    function startBubbles() {
+      // Create new bubbles every 30 seconds
+      bubbleInterval = setInterval(() => {
+        // Clear existing bubbles
+        document.getElementById('bubbleContainer').innerHTML = '';
+        
+        // Create new set of bubbles (increased from 5 to 15)
+        for (let i = 0; i < 15; i++) {
+          setTimeout(() => createBubble(), i * 100); // Reduced delay between bubbles
+        }
+      }, 30000); // Reset every 30 seconds
+      
+      // Initial burst of bubbles
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => createBubble(), i * 100);
+      }
+    }
+
+    // Start bubbles when page loads
+    startBubbles();
+
+    // Cursor glow effect
+    const cursorGlow = document.getElementById('cursorGlow');
+
+    document.addEventListener('mousemove', (e) => {
+      cursorGlow.style.left = e.clientX + 'px';
+      cursorGlow.style.top = e.clientY + 'px';
+    });
+
+    // Optional: Make the glow larger when hovering over interactive elements
+    document.querySelectorAll('button, a, .video-box').forEach(element => {
+      element.addEventListener('mouseenter', () => {
+        cursorGlow.classList.add('hover');
+      });
+      
+      element.addEventListener('mouseleave', () => {
+        cursorGlow.classList.remove('hover');
+      });
+    });
+  </script>
+
+  <!-- Add before closing body tag -->
+  {% include 'partials/footer.html' %}
+</body>
+</html>
