@@ -249,13 +249,13 @@
             </a>
           </li>
           <li>
-            <a href="#">
+            <a href="#" onclick="showLogsPreview(event)">
               <i class="fas fa-file-alt"></i>
               <span>Logs</span>
             </a>
           </li>
           <li>
-            <a href="#">
+            <a href="#" onclick="showSettingsPreview(event)">
               <i class="fas fa-cogs"></i>
               <span>Settings</span>
             </a>
@@ -285,6 +285,34 @@
             class="absolute w-6 h-6 bg-red-500 rounded-full shadow transform transition-transform dark:bg-white"
           ></div>
         </div>
+      </div>
+    </div>
+
+    <!-- Add this preview overlay div after the sidebar div -->
+    <div id="logsPreview" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[100]">
+      <div class="bg-white dark:bg-gray-800 p-8 rounded-lg max-w-md text-center shadow-xl">
+        <i class="fas fa-tools text-6xl text-red-500 mb-4"></i>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Under Development</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">
+          This feature is currently being developed by our team. Please check back soon for updates!
+        </p>
+        <button onclick="hideLogsPreview()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- Add this settings preview overlay div (can be placed next to the logs preview) -->
+    <div id="settingsPreview" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-[100]">
+      <div class="bg-white dark:bg-gray-800 p-8 rounded-lg max-w-md text-center shadow-xl">
+        <i class="fas fa-cog text-6xl text-red-500 mb-4 animate-spin"></i>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Settings Coming Soon</h2>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">
+          We're working hard to bring you customizable settings. Stay tuned for exciting new features!
+        </p>
+        <button onclick="hideSettingsPreview()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors">
+          Close
+        </button>
       </div>
     </div>
 
@@ -341,6 +369,24 @@
           localStorage.setItem("theme", "dark");
         }
       });
+
+      function showLogsPreview(event) {
+        event.preventDefault();
+        document.getElementById('logsPreview').classList.remove('hidden');
+      }
+
+      function hideLogsPreview() {
+        document.getElementById('logsPreview').classList.add('hidden');
+      }
+
+      function showSettingsPreview(event) {
+        event.preventDefault();
+        document.getElementById('settingsPreview').classList.remove('hidden');
+      }
+
+      function hideSettingsPreview() {
+        document.getElementById('settingsPreview').classList.add('hidden');
+      }
     </script>
   </body>
 </html>
