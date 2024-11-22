@@ -11,11 +11,13 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
     />
+    <!-- Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
       /* Light Mode (Default) */
       body {
         background-color: #ffffff; /* Light background */
-        font-family: "Poppins", sans-serif;
+        font-family: 'Poppins', sans-serif;
         color: #333333; /* Light text color */
         transition: background-color 0.3s ease, color 0.3s ease;
       }
@@ -31,12 +33,14 @@
         font-size: 2.5rem;
         color: #e13939; /* Constant for both modes */
         margin-bottom: 10px;
+        font-family: 'Poppins', sans-serif;
       }
 
       .dashboard-header .subtitle {
         font-size: 1.1rem;
         color: #666666; /* Light subtitle */
         font-weight: 300;
+        font-family: 'Poppins', sans-serif;
       }
 
       body.dark-mode .dashboard-header .subtitle {
@@ -91,6 +95,7 @@
         color: black; /* Light text color */
         margin-bottom: 5px;
         font-weight: bold;
+        font-family: 'Poppins', sans-serif;
       }
 
       body.dark-mode .stat-content h3 {
@@ -101,6 +106,7 @@
         font-size: 1.8rem;
         font-weight: 600;
         color: #333333; /* Light number color */
+        font-family: 'Poppins', sans-serif;
       }
 
       body.dark-mode .stat-number {
@@ -125,6 +131,7 @@
         color: #333333; /* Light heading color */
         margin-bottom: 20px;
         font-size: 1.5rem;
+        font-family: 'Poppins', sans-serif;
       }
 
       body.dark-mode .recent-activity h2 {
@@ -150,6 +157,7 @@
       .empty-state p {
         color: #666666; /* Light text color */
         margin-bottom: 20px;
+        font-family: 'Poppins', sans-serif;
       }
 
       body.dark-mode .empty-state p {
@@ -166,6 +174,7 @@
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
+        font-family: 'Poppins', sans-serif;
       }
 
       .start-scanning-btn:hover {
@@ -187,10 +196,10 @@
     {% include 'partials/sidebar.html' %}
 
     <!-- Main Content -->
-    <div class="content pl-72 pr-4 py-6">
+    <div class="content pl-72 pr-4 py-6 pb-16">
       <!-- Dashboard Header -->
       <div class="dashboard-header text-center mb-10">
-        <h1>Welcome to AquaGrade Dashboard</h1>
+        <h1><b>Welcome to AquaGrade Dashboard</b></h1>
         <p class="subtitle">
           Monitor and analyze your fish freshness detection results
         </p>
@@ -241,5 +250,6 @@
         </div>
       </div>
     </div>
+    {% include 'partials/footer.html' %}
   </body>
 </html>
