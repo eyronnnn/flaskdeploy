@@ -810,141 +810,31 @@
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = () => {
-            const img = new Image();
-            img.onload = () => {
-              // Calculate scaled dimensions
-              const maxWidth = 400;
-              const maxHeight = 300;
-              let width = img.width;
-              let height = img.height;
-              
-              // Scale down if image is larger than max dimensions
-              if (width > maxWidth || height > maxHeight) {
-                const ratio = Math.min(maxWidth / width, maxHeight / height);
-                width *= ratio;
-                height *= ratio;
-              }
-              
-              // Create canvas for scaled image
-              const canvas = document.createElement('canvas');
-              canvas.width = width;
-              canvas.height = height;
-              
-              // Draw scaled image
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, width, height);
-              
-              // Update preview
-              previewImage.src = canvas.toDataURL('image/jpeg', 0.9);
-              previewImage.style.width = `${width}px`;
-              previewImage.style.height = `${height}px`;
-              previewContainer.classList.remove("hidden");
-              analyzeBtn.disabled = false;
-            };
-            img.src = reader.result;
+          reader.onload = (e) => {
+            previewContainer.classList.remove("hidden");
+            previewImage.src = e.target.result;
+            analyzeBtn.disabled = false;
+            
+            // Clear any previous results when new image is selected
+            resultContainer.classList.add("hidden");
+            resultContainer.innerHTML = "";
           };
           reader.readAsDataURL(file);
+        } else {
+          previewContainer.classList.add("hidden");
+          analyzeBtn.disabled = true;
+          resultContainer.classList.add("hidden");
+          resultContainer.innerHTML = "";
         }
       });
-
-      // Function to draw bounding boxes
-      function drawBoundingBoxes(image, predictions) {
-        return new Promise((resolve, reject) => {
-          try {
-            const maxWidth = 400;
-            const maxHeight = 300;
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-
-            // Function to do the actual drawing
-            const draw = () => {
-              try {
-                // Calculate scale to fit the image within max dimensions while maintaining aspect ratio
-                const scale = Math.min(
-                  maxWidth / image.naturalWidth,
-                  maxHeight / image.naturalHeight
-                );
-                const scaledWidth = image.naturalWidth * scale;
-                const scaledHeight = image.naturalHeight * scale;
-
-                // Set canvas dimensions
-                canvas.width = scaledWidth;
-                canvas.height = scaledHeight;
-
-                // Draw the scaled image
-                ctx.drawImage(image, 0, 0, scaledWidth, scaledHeight);
-
-                // Draw predictions
-                predictions.forEach((prediction) => {
-                  const { x, y, width, height, confidence, class: label } = prediction;
-
-                  // Scale coordinates
-                  const scaledX = x * scale;
-                  const scaledY = y * scale;
-                  const scaledWidth = width * scale;
-                  const scaledHeight = height * scale;
-
-                  // Draw the bounding box
-                  ctx.strokeStyle = "#e91e63";
-                  ctx.lineWidth = 2;
-                  ctx.strokeRect(
-                    scaledX - scaledWidth / 2,
-                    scaledY - scaledHeight / 2,
-                    scaledWidth,
-                    scaledHeight
-                  );
-
-                  // Add background for text
-                  const text = `${label} (${(confidence * 100).toFixed(1)}%)`;
-                  ctx.font = "14px Poppins";
-                  const textMetrics = ctx.measureText(text);
-                  const textHeight = 20;
-                  
-                  ctx.fillStyle = "rgba(233, 30, 99, 0.8)";
-                  ctx.fillRect(
-                    scaledX - scaledWidth / 2,
-                    scaledY - scaledHeight / 2 - textHeight,
-                    textMetrics.width + 10,
-                    textHeight
-                  );
-
-                  // Add label
-                  ctx.fillStyle = "white";
-                  ctx.fillText(
-                    text,
-                    scaledX - scaledWidth / 2 + 5,
-                    scaledY - scaledHeight / 2 - 5
-                  );
-                });
-
-                // Replace preview container content with the canvas
-                const previewContainer = document.getElementById("previewContainer");
-                previewContainer.innerHTML = "";
-                previewContainer.appendChild(canvas);
-                resolve();
-              } catch (err) {
-                reject(err);
-              }
-            };
-
-            // Check if image is already loaded
-            if (image.complete) {
-              draw();
-            } else {
-              // Wait for image to load before drawing
-              image.onload = draw;
-            }
-          } catch (err) {
-            reject(err);
-          }
-        });
-      }
 
       // Update the analyze button handler
       analyzeBtn.addEventListener("click", async () => {
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
+
+        // Disable analyze button to prevent multiple clicks
+        analyzeBtn.disabled = true;
 
         loading.classList.remove("hidden");
         resultContainer.classList.add("hidden");
@@ -965,11 +855,7 @@
           const predictions = data.predictions;
 
           if (predictions && predictions.length > 0) {
-            // Draw bounding boxes first
-            const imageElement = document.getElementById("previewImage");
-            await drawBoundingBoxes(imageElement, predictions);
-
-            // Then show results
+            // Show results without drawing bounding boxes
             resultContainer.innerHTML = `
               <h3 class="text-lg font-semibold text-gray-700 mb-4 sticky top-0 bg-[#292929] py-2">
                 Analysis Results
@@ -1007,6 +893,9 @@
               <p class="text-sm mt-2">Details: ${error.message}</p>
             </div>
           `;
+        } finally {
+          // Re-enable analyze button after processing is complete
+          analyzeBtn.disabled = false;
         }
       });
 
