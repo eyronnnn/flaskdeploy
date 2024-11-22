@@ -7,7 +7,7 @@ app = Flask(__name__)
 # Initialize Roboflow Inference Client using new API key
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",
-    api_key="SUxPc1PBNC08yu5jmTnN"  # Updated API key
+    api_key="KLuysgojSyV9rMNLr20y"  # Updated API key
 )
 
 # Ensure the 'uploads' directory exists
@@ -18,6 +18,18 @@ if not os.path.exists(UPLOAD_FOLDER):
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/realtime-detection')
+def realtime_detection():
+    return render_template('TEST.html')
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/scan')
+def scan():
+    return render_template('scan.html')
 
 @app.route('/page2')
 def page2():
