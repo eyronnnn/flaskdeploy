@@ -7,7 +7,7 @@ app = Flask(__name__)
 # Initialize Roboflow Inference Client using new API key
 CLIENT = InferenceHTTPClient(
     api_url="https://detect.roboflow.com",
-    api_key="KLuysgojSyV9rMNLr20y"  # Updated API key
+    api_key="n59gY3c0QFhpjUrAOrCK"  # Updated API key
 )
 
 # Ensure the 'uploads' directory exists
@@ -19,9 +19,9 @@ if not os.path.exists(UPLOAD_FOLDER):
 def home():
     return render_template('index.html')
 
-@app.route('/realtime-detection')
+@app.route('/realtime')
 def realtime_detection():
-    return render_template('TEST.html')
+    return render_template('realtime-index.html')
 
 @app.route('/dashboard')
 def dashboard():
@@ -31,16 +31,13 @@ def dashboard():
 def scan():
     return render_template('scan.html')
 
-@app.route('/page2')
-def page2():
-    return render_template('index2.html')
 
 @app.route('/upload-single-image', methods=['POST'])
 def upload_single_image():
     file = request.files['file']
     file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     file.save(file_path)
-    result = CLIENT.infer(file_path, model_id="fish-freshness-6-sb0n6-z5dqy/1")
+    result = CLIENT.infer(file_path, model_id="fish-freshness-6-o2ijt/2")
     return jsonify(result)
 
 @app.route('/upload-batch-images', methods=['POST'])
@@ -51,7 +48,7 @@ def upload_batch_images():
     for file in files:
         file_path = os.path.join(UPLOAD_FOLDER, file.filename)
         file.save(file_path)
-        result = CLIENT.infer(file_path, model_id="fish-freshness-6-sb0n6-z5dqy/1")
+        result = CLIENT.infer(file_path, model_id="fish-freshness-6-o2ijt/2")
         results.append({file.filename: result})
 
     return jsonify(results)
