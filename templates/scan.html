@@ -11,6 +11,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
     />
+    <!-- Poppins Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
       /* Global Styles */
       body {
@@ -68,6 +73,7 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease,
           background 0.3s ease;
         cursor: pointer;
+        font-family: "Poppins", sans-serif;
       }
 
       .card:hover {
@@ -145,6 +151,7 @@
         z-index: 2;
         font-size: 1.2rem;
         font-weight: bold;
+        font-family: "Poppins", sans-serif;
       }
 
       .card i {
@@ -177,6 +184,7 @@
       .text-gray-600 {
         color: #666666; /* Default light mode */
         font-weight: bold;
+        font-family: "Poppins", sans-serif;
       }
 
       body.dark-mode .text-gray-600 {
@@ -195,6 +203,7 @@
         justify-content: center;
         align-items: center;
         z-index: 1000;
+        font-family: "Poppins", sans-serif;
       }
 
       .modal-content {
@@ -206,6 +215,7 @@
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         position: relative;
         color: #e0e0e0; /* Light gray text */
+        font-family: "Poppins", sans-serif;
       }
       .close-btn {
         cursor: pointer;
@@ -229,6 +239,7 @@
         font-size: 24px;
         font-weight: bold;
         color: #e91e63;
+        font-family: "Poppins", sans-serif;
       }
 
       .file-input {
@@ -241,6 +252,7 @@
         font-size: 16px;
         margin-bottom: 20px;
         cursor: pointer;
+        font-family: "Poppins", sans-serif;
       }
 
       .file-input:hover {
@@ -266,6 +278,7 @@
         font-size: 1.2rem;
         color: #e91e63;
         margin-top: 20px;
+        font-family: "Poppins", sans-serif;
       }
 
       .spinner {
@@ -290,6 +303,7 @@
       input[type="file"] {
         display: block;
         margin: 20px auto;
+        font-family: "Poppins", sans-serif;
       }
 
       button {
@@ -302,6 +316,7 @@
         font-size: 16px;
         font-weight: bold;
         transition: background 0.3s ease;
+        font-family: "Poppins", sans-serif;
       }
 
       button:hover {
@@ -309,12 +324,15 @@
       }
 
       #result {
-        width: 48%; /* Adjust result section width */
+        width: 100%;
+        max-height: 400px;
+        overflow-y: auto;
         padding: 10px 20px;
         background: #292929;
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         text-align: left;
+        font-family: "Poppins", sans-serif;
       }
 
       #result h3 {
@@ -322,6 +340,7 @@
         font-weight: bold;
         color: #e91e63;
         margin-bottom: 10px;
+        font-family: "Poppins", sans-serif;
       }
 
       #result p {
@@ -329,6 +348,237 @@
         line-height: 1.5;
         margin: 5px 0;
         color: #ffffff;
+        font-family: "Poppins", sans-serif;
+      }
+
+      /* Add these new styles */
+      .modal-content.batch-mode {
+        max-height: 90vh; /* Limit height to 90% of viewport height */
+        overflow-y: auto; /* Enable vertical scrolling */
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Style the scrollbar for better visibility */
+      .modal-content.batch-mode::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .modal-content.batch-mode::-webkit-scrollbar-track {
+        background: #2d2d2d;
+        border-radius: 4px;
+      }
+
+      .modal-content.batch-mode::-webkit-scrollbar-thumb {
+        background: #666;
+        border-radius: 4px;
+      }
+
+      .modal-content.batch-mode::-webkit-scrollbar-thumb:hover {
+        background: #888;
+      }
+
+      /* Update batch results container style */
+      #batchResultsContainer {
+        max-height: 100%;
+        gap: 1rem;
+        padding-bottom: 1rem;
+      }
+
+      .batch-result-item {
+        background: #292929;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid #424242;
+      }
+
+      .batch-result-item:hover {
+        border-color: #e91e63;
+        transform: translateY(-2px);
+        transition: all 0.2s ease;
+      }
+
+      /* Single image modal scrollable styles */
+      .modal-content {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      /* Style the scrollbar for the result section */
+      #result::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      #result::-webkit-scrollbar-track {
+        background: #1f1f1f;
+        border-radius: 4px;
+      }
+
+      #result::-webkit-scrollbar-thumb {
+        background: #666;
+        border-radius: 4px;
+      }
+
+      #result::-webkit-scrollbar-thumb:hover {
+        background: #888;
+      }
+
+      /* Style for individual prediction items */
+      .prediction-item {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #424242;
+        transition: all 0.2s ease;
+      }
+
+      .prediction-item:hover {
+        border-color: #e91e63;
+        transform: translateY(-2px);
+      }
+
+      .prediction-item:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Add these styles to your existing CSS */
+      #captureBtn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #666;
+      }
+
+      #cameraPermission {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background-color: rgba(0, 0, 0, 0.2);
+        margin-bottom: 1rem;
+      }
+
+      #cameraPermission button {
+        margin-top: 0.5rem;
+      }
+
+      #cameraFeed {
+        display: none; /* Initially hidden until camera starts */
+        background-color: #1a1a1a;
+        min-height: 200px;
+      }
+
+      #cameraPermission {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      #cameraPermission ol {
+        list-style-type: none;
+        margin: 1rem 0;
+      }
+
+      #cameraPermission ol li {
+        margin-bottom: 0.5rem;
+        color: #e0e0e0;
+      }
+
+      #cameraPermission button {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+        display: block;
+      }
+
+      .fa-spinner {
+        animation: spin 1s linear infinite;
+      }
+
+      .fa-check-circle {
+        color: #48bb78;
+      }
+
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* Modal Button Styles */
+      .modal button {
+        font-family: "Poppins", sans-serif;
+        font-size: 0.95rem;
+        letter-spacing: 0.025em;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transform: translateY(0);
+        transition: all 0.2s ease;
+      }
+
+      .modal button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+      }
+
+      .modal button:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal button i {
+        font-size: 1rem;
+      }
+
+      .modal button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Specific button hover effects */
+      #captureBtn:hover {
+        background-color: #3b82f6;
+      }
+
+      #retakeBtn:hover {
+        background-color: #6b7280;
+      }
+
+      #analyzeCapturedBtn:hover {
+        background-color: #22c55e;
+      }
+
+      /* Button loading state */
+      .modal button.loading {
+        position: relative;
+        cursor: wait;
+      }
+
+      .modal button.loading i {
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* Button group spacing and alignment */
+      .modal .flex.justify-center.gap-4 {
+        flex-wrap: wrap;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 640px) {
+        .modal button {
+          width: 100%;
+          margin-bottom: 0.5rem;
+        }
+        
+        .modal .flex.justify-center.gap-4 {
+          flex-direction: column;
+          gap: 0.75rem;
+        }
       }
     </style>
   </head>
@@ -337,7 +587,7 @@
     {% include 'partials/sidebar.html' %}
 
     <!-- Main Content -->
-    <div class="content">
+    <div class="content pb-16">
       <h1 class="text-4xl font-bold text-red-600 text-center mt-8 mb-6">
         Scan Options
       </h1>
@@ -346,7 +596,7 @@
       </p>
 
       <div class="card-grid">
-        <div class="card card-pink">
+        <div class="card card-pink" onclick="window.location.href='/realtime'">
           <i class="fas fa-video"></i>
           <h3>Real-Time Detection</h3>
         </div>
@@ -356,12 +606,12 @@
           <h3>Upload Single Image</h3>
         </div>
 
-        <div class="card card-dark-red">
+        <div class="card card-dark-red" id="captureImageBtn">
           <i class="fas fa-camera"></i>
           <h3>Capture Image</h3>
         </div>
 
-        <div class="card card-dark-red">
+        <div class="card card-dark-red" id="uploadBatchBtn">
           <i class="fas fa-images"></i>
           <h3>Upload Batch Images</h3>
         </div>
@@ -382,7 +632,7 @@
         >
 
         <!-- Image Preview Section -->
-        <div class="w-full md:w-1/2 text-center">
+        <div class="w-full text-center">
           <h2 class="text-2xl font-bold mb-4">Upload and Analyze a Fish</h2>
           <form id="uploadForm">
             <input
@@ -397,7 +647,7 @@
                 id="previewImage"
                 alt="Uploaded Preview"
                 class="rounded-lg border border-gray-200 shadow-sm mx-auto"
-                style="max-width: 100%; max-height: 300px"
+                style="max-width: 400px; max-height: 300px; object-fit: contain;"
               />
               <p class="text-gray-500 mt-2 text-sm">Selected Image Preview</p>
             </div>
@@ -415,7 +665,7 @@
         <!-- Analysis Result Section -->
         <div
           id="result"
-          class="w-full md:w-1/2 mt-6 md:mt-0 hidden text-center md:text-left"
+          class="w-full mt-6 hidden text-center md:text-left"
         >
           <h3 class="text-lg font-semibold text-gray-700 mb-4">
             Analysis Result
@@ -434,6 +684,92 @@
       </div>
     </div>
 
+    <!-- Add this new modal after the existing upload modal -->
+    <div id="batchUploadModal" class="modal">
+      <div class="modal-content batch-mode relative flex flex-wrap justify-between items-start" style="max-width: 800px; width: 90%">
+        <!-- Close Button -->
+        <span class="close-btn absolute top-4 right-4 cursor-pointer text-gray-600 hover:text-gray-900" id="closeBatchModal">&times;</span>
+
+        <!-- Batch Upload Section -->
+        <div class="w-full text-center">
+          <h2 class="text-2xl font-bold mb-4">Upload Multiple Images for Analysis</h2>
+          <form id="batchUploadForm">
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png"
+              id="batchFileInput"
+              class="file-input border border-gray-300 rounded p-2 w-full cursor-pointer mb-4"
+              required
+              multiple
+            />
+            <div id="batchPreviewContainer" class="mb-6 hidden grid grid-cols-2 md:grid-cols-3 gap-4">
+              <!-- Preview images will be inserted here -->
+            </div>
+            <button
+              type="button"
+              id="analyzeBatchBtn"
+              class="bg-blue-500 text-white font-semibold px-6 py-2 rounded shadow-sm hover:bg-blue-600 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+            >
+              Analyze All Images
+            </button>
+          </form>
+        </div>
+
+        <!-- Update the batch results section -->
+        <div id="batchResults" class="w-full mt-6 hidden">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4 sticky top-0 bg-[#1f1f1f] py-2">Analysis Results</h3>
+          <div id="batchResultsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Results will be inserted here -->
+          </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="batchLoading" class="loading">
+          <div class="spinner"></div>
+          <p>Please wait, analyzing multiple images...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Capture Modal -->
+    <div id="captureModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn absolute top-4 right-4 cursor-pointer text-gray-600 hover:text-gray-900" id="closeCaptureModal">&times;</span>
+        <h2 class="text-2xl font-bold text-center mb-4">Capture and Analyze a Fish</h2>
+        
+        <!-- Camera Permission Request -->
+        <div id="cameraPermission" class="hidden"></div>
+        
+        <!-- Camera Feed -->
+        <video id="cameraFeed" autoplay playsinline class="w-full max-w-2xl mx-auto"></video>
+        
+        <!-- Captured Image Preview -->
+        <div id="capturedPreviewContainer" class="hidden mt-4"></div>
+        
+        <!-- Controls -->
+        <div class="flex justify-center gap-4 mt-6 mb-4">
+          <button id="captureBtn" class="hidden px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors duration-200 flex items-center">
+            <i class="fas fa-camera mr-2"></i>
+            Capture Image
+          </button>
+          
+          <button id="retakeBtn" class="hidden px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition-colors duration-200 flex items-center">
+            <i class="fas fa-redo mr-2"></i>
+            Retake
+          </button>
+          
+          <button id="analyzeCapturedBtn" class="hidden px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center">
+            <i class="fas fa-search mr-2"></i>
+            Analyze Image
+          </button>
+        </div>
+        
+        <!-- Results -->
+        <div id="captureResult" class="hidden mt-4"></div>
+      </div>
+    </div>
+
     <script>
       // Variables for modal elements
       const uploadImageBtn = document.getElementById("uploadImageBtn");
@@ -448,6 +784,17 @@
       const fishType = document.getElementById("fishType");
       const confidenceScore = document.getElementById("confidenceScore");
 
+      // Batch upload variables
+      const uploadBatchBtn = document.getElementById("uploadBatchBtn");
+      const batchUploadModal = document.getElementById("batchUploadModal");
+      const closeBatchModal = document.getElementById("closeBatchModal");
+      const batchFileInput = document.getElementById("batchFileInput");
+      const batchPreviewContainer = document.getElementById("batchPreviewContainer");
+      const analyzeBatchBtn = document.getElementById("analyzeBatchBtn");
+      const batchLoading = document.getElementById("batchLoading");
+      const batchResults = document.getElementById("batchResults");
+      const batchResultsContainer = document.getElementById("batchResultsContainer");
+
       // Open modal
       uploadImageBtn.addEventListener("click", () => {
         uploadModal.style.display = "flex";
@@ -458,88 +805,150 @@
         uploadModal.style.display = "none";
       });
 
-      // Preview uploaded image
+      // Update the preview image handler
       fileInput.addEventListener("change", (e) => {
         const file = e.target.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = () => {
-            previewImage.src = reader.result; // Set image preview source
-            previewImage.style.display = "block";
-            previewContainer.classList.remove("hidden");
-            analyzeBtn.disabled = false; // Enable "Upload for Analysis" button
+            const img = new Image();
+            img.onload = () => {
+              // Calculate scaled dimensions
+              const maxWidth = 400;
+              const maxHeight = 300;
+              let width = img.width;
+              let height = img.height;
+              
+              // Scale down if image is larger than max dimensions
+              if (width > maxWidth || height > maxHeight) {
+                const ratio = Math.min(maxWidth / width, maxHeight / height);
+                width *= ratio;
+                height *= ratio;
+              }
+              
+              // Create canvas for scaled image
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              
+              // Draw scaled image
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              
+              // Update preview
+              previewImage.src = canvas.toDataURL('image/jpeg', 0.9);
+              previewImage.style.width = `${width}px`;
+              previewImage.style.height = `${height}px`;
+              previewContainer.classList.remove("hidden");
+              analyzeBtn.disabled = false;
+            };
+            img.src = reader.result;
           };
-          reader.readAsDataURL(file); // Read the uploaded file
+          reader.readAsDataURL(file);
         }
       });
 
-      // Draw bounding boxes on the image
+      // Function to draw bounding boxes
       function drawBoundingBoxes(image, predictions) {
-        const maxWidth = 600; // Set max width for the canvas
-        const maxHeight = 400; // Set max height for the canvas
+        return new Promise((resolve, reject) => {
+          try {
+            const maxWidth = 400;
+            const maxHeight = 300;
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
 
-        // Create a canvas element
-        const canvas = document.createElement("canvas");
+            // Function to do the actual drawing
+            const draw = () => {
+              try {
+                // Calculate scale to fit the image within max dimensions while maintaining aspect ratio
+                const scale = Math.min(
+                  maxWidth / image.naturalWidth,
+                  maxHeight / image.naturalHeight
+                );
+                const scaledWidth = image.naturalWidth * scale;
+                const scaledHeight = image.naturalHeight * scale;
 
-        // Calculate scale to fit the image within max dimensions
-        const scale = Math.min(
-          maxWidth / image.naturalWidth,
-          maxHeight / image.naturalHeight
-        );
-        const scaledWidth = image.naturalWidth * scale;
-        const scaledHeight = image.naturalHeight * scale;
+                // Set canvas dimensions
+                canvas.width = scaledWidth;
+                canvas.height = scaledHeight;
 
-        canvas.width = scaledWidth;
-        canvas.height = scaledHeight;
+                // Draw the scaled image
+                ctx.drawImage(image, 0, 0, scaledWidth, scaledHeight);
 
-        const ctx = canvas.getContext("2d");
+                // Draw predictions
+                predictions.forEach((prediction) => {
+                  const { x, y, width, height, confidence, class: label } = prediction;
 
-        // Draw the scaled image
-        ctx.drawImage(image, 0, 0, scaledWidth, scaledHeight);
+                  // Scale coordinates
+                  const scaledX = x * scale;
+                  const scaledY = y * scale;
+                  const scaledWidth = width * scale;
+                  const scaledHeight = height * scale;
 
-        // Scale predictions to match the resized image
-        predictions.forEach((prediction) => {
-          const { x, y, width, height, confidence, class: label } = prediction;
+                  // Draw the bounding box
+                  ctx.strokeStyle = "#e91e63";
+                  ctx.lineWidth = 2;
+                  ctx.strokeRect(
+                    scaledX - scaledWidth / 2,
+                    scaledY - scaledHeight / 2,
+                    scaledWidth,
+                    scaledHeight
+                  );
 
-          // Scale coordinates
-          const scaledX = x * scale;
-          const scaledY = y * scale;
-          const scaledWidth = width * scale;
-          const scaledHeight = height * scale;
+                  // Add background for text
+                  const text = `${label} (${(confidence * 100).toFixed(1)}%)`;
+                  ctx.font = "14px Poppins";
+                  const textMetrics = ctx.measureText(text);
+                  const textHeight = 20;
+                  
+                  ctx.fillStyle = "rgba(233, 30, 99, 0.8)";
+                  ctx.fillRect(
+                    scaledX - scaledWidth / 2,
+                    scaledY - scaledHeight / 2 - textHeight,
+                    textMetrics.width + 10,
+                    textHeight
+                  );
 
-          // Draw the bounding box
-          ctx.strokeStyle = "red";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(
-            scaledX - scaledWidth / 2,
-            scaledY - scaledHeight / 2,
-            scaledWidth,
-            scaledHeight
-          );
+                  // Add label
+                  ctx.fillStyle = "white";
+                  ctx.fillText(
+                    text,
+                    scaledX - scaledWidth / 2 + 5,
+                    scaledY - scaledHeight / 2 - 5
+                  );
+                });
 
-          // Add label and confidence score
-          ctx.fillStyle = "red";
-          ctx.font = "16px Arial";
-          ctx.fillText(
-            `${label} (${(confidence * 100).toFixed(2)}%)`,
-            scaledX - scaledWidth / 2,
-            scaledY - scaledHeight / 2 - 5
-          );
+                // Replace preview container content with the canvas
+                const previewContainer = document.getElementById("previewContainer");
+                previewContainer.innerHTML = "";
+                previewContainer.appendChild(canvas);
+                resolve();
+              } catch (err) {
+                reject(err);
+              }
+            };
+
+            // Check if image is already loaded
+            if (image.complete) {
+              draw();
+            } else {
+              // Wait for image to load before drawing
+              image.onload = draw;
+            }
+          } catch (err) {
+            reject(err);
+          }
         });
-
-        // Replace preview container content with the canvas
-        previewContainer.innerHTML = ""; // Clear existing content
-        previewContainer.appendChild(canvas);
       }
 
-      // Analyze imagE
+      // Update the analyze button handler
       analyzeBtn.addEventListener("click", async () => {
         const formData = new FormData();
-        formData.append("file", fileInput.files[0]); // Attach the uploaded file
+        formData.append("file", fileInput.files[0]);
 
-        loading.classList.remove("hidden"); // Show loading indicator
+        loading.classList.remove("hidden");
         resultContainer.classList.add("hidden");
-        resultContainer.innerHTML = ""; // Clear previous results
+        resultContainer.innerHTML = "";
 
         try {
           const response = await fetch("/upload-single-image", {
@@ -547,56 +956,57 @@
             body: formData,
           });
 
-          if (response.ok) {
-            const data = await response.json();
-            const predictions = data.predictions; // Extract all predictions
+          const data = await response.json();
 
-            loading.classList.add("hidden"); // Hide loading indicator
-            resultContainer.classList.remove("hidden"); // Show result section
-
-            if (predictions.length > 0) {
-              // Display all predictions in the result container
-              predictions.forEach((prediction, index) => {
-                const { class: label, confidence } = prediction;
-
-                // Create a new div for each prediction
-                const predictionDiv = document.createElement("div");
-                predictionDiv.classList.add(
-                  "prediction-item",
-                  "mb-4",
-                  "p-4",
-                  "rounded",
-                  "bg-gray-800",
-                  "text-white",
-                  "shadow"
-                );
-
-                predictionDiv.innerHTML = `
-            <h4 class="font-bold text-lg mb-2">Result ${index + 1}</h4>
-            <p><strong>Label:</strong> ${label}</p>
-            <p><strong>Confidence:</strong> ${(confidence * 100).toFixed(
-              2
-            )}%</p>
-          `;
-
-                resultContainer.appendChild(predictionDiv); // Append to result container
-              });
-
-              // Draw bounding boxes on the uploaded image
-              const imageElement = document.getElementById("previewImage");
-              drawBoundingBoxes(imageElement, predictions);
-            } else {
-              resultContainer.innerHTML = "<p>No objects detected.</p>";
-            }
-          } else {
-            throw new Error("Error analyzing the image.");
+          if (!response.ok) {
+            throw new Error(data.message || 'Error analyzing the image');
           }
+
+          const predictions = data.predictions;
+
+          if (predictions && predictions.length > 0) {
+            // Draw bounding boxes first
+            const imageElement = document.getElementById("previewImage");
+            await drawBoundingBoxes(imageElement, predictions);
+
+            // Then show results
+            resultContainer.innerHTML = `
+              <h3 class="text-lg font-semibold text-gray-700 mb-4 sticky top-0 bg-[#292929] py-2">
+                Analysis Results
+              </h3>
+            `;
+
+            predictions.forEach((prediction, index) => {
+              const predictionDiv = document.createElement("div");
+              predictionDiv.classList.add("prediction-item");
+              predictionDiv.innerHTML = `
+                <h4 class="font-bold text-lg mb-2">Result ${index + 1}</h4>
+                <p><strong>Label:</strong> ${prediction.class}</p>
+                <p><strong>Confidence:</strong> ${(prediction.confidence * 100).toFixed(2)}%</p>
+              `;
+              resultContainer.appendChild(predictionDiv);
+            });
+          } else {
+            resultContainer.innerHTML = `
+              <div class="prediction-item">
+                <p>No objects detected in the image.</p>
+              </div>
+            `;
+          }
+
+          loading.classList.add("hidden");
+          resultContainer.classList.remove("hidden");
         } catch (error) {
-          console.error(error);
-          loading.classList.add("hidden"); // Hide loading indicator
-          resultContainer.classList.remove("hidden"); // Show result section
-          resultContainer.innerHTML =
-            "<p class='text-red-500'>An error occurred while analyzing the image.</p>";
+          console.error('Analysis error:', error);
+          loading.classList.add("hidden");
+          resultContainer.classList.remove("hidden");
+          resultContainer.innerHTML = `
+            <div class="prediction-item bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
+              <p class="font-bold">Error</p>
+              <p>An error occurred while analyzing the image. Please try again.</p>
+              <p class="text-sm mt-2">Details: ${error.message}</p>
+            </div>
+          `;
         }
       });
 
@@ -606,6 +1016,545 @@
           uploadModal.style.display = "none";
         }
       });
+
+      // Open batch modal
+      uploadBatchBtn.addEventListener("click", () => {
+        batchUploadModal.style.display = "flex";
+      });
+
+      // Close batch modal
+      closeBatchModal.addEventListener("click", () => {
+        batchUploadModal.style.display = "none";
+      });
+
+      // Preview batch images
+      batchFileInput.addEventListener("change", (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+          batchPreviewContainer.innerHTML = ""; // Clear existing previews
+          batchPreviewContainer.classList.remove("hidden");
+          analyzeBatchBtn.disabled = false;
+
+          files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              const previewDiv = document.createElement("div");
+              previewDiv.className = "relative";
+              
+              const img = document.createElement("img");
+              img.src = reader.result;
+              img.className = "rounded-lg border border-gray-200 shadow-sm w-full h-40 object-cover";
+              img.alt = `Preview ${index + 1}`;
+              
+              const label = document.createElement("p");
+              label.className = "text-gray-500 text-sm mt-1";
+              label.textContent = `Image ${index + 1}`;
+              
+              previewDiv.appendChild(img);
+              previewDiv.appendChild(label);
+              batchPreviewContainer.appendChild(previewDiv);
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+      });
+
+      // Analyze batch images
+      analyzeBatchBtn.addEventListener("click", async () => {
+        const files = Array.from(batchFileInput.files);
+        if (files.length === 0) return;
+
+        batchLoading.classList.remove("hidden");
+        batchResults.classList.add("hidden");
+        batchResultsContainer.innerHTML = "";
+
+        try {
+          const results = await Promise.all(
+            files.map(async (file) => {
+              const formData = new FormData();
+              formData.append("file", file);
+
+              const response = await fetch("/upload-single-image", {
+                method: "POST",
+                body: formData,
+              });
+
+              if (!response.ok) throw new Error(`Error analyzing ${file.name}`);
+              return {
+                fileName: file.name,
+                data: await response.json(),
+              };
+            })
+          );
+
+          batchLoading.classList.add("hidden");
+          batchResults.classList.remove("hidden");
+
+          results.forEach((result, index) => {
+            const resultDiv = document.createElement("div");
+            resultDiv.className = "batch-result-item text-white";
+
+            // Truncate filename to show only first 15 characters + extension
+            const truncatedFileName = result.fileName.length > 15 
+              ? result.fileName.slice(0, 15) + '...' + result.fileName.slice(result.fileName.lastIndexOf('.'))
+              : result.fileName;
+
+            let resultHTML = `
+              <div class="flex justify-between items-center mb-3">
+                <h4 class="font-bold text-lg">Image ${index + 1}</h4>
+                <span class="text-sm text-gray-400" title="${result.fileName}">${truncatedFileName}</span>
+              </div>
+            `;
+
+            const predictions = result.data.predictions;
+            if (predictions.length > 0) {
+              predictions.forEach((pred) => {
+                resultHTML += `
+                  <div class="mb-2 p-2 bg-gray-800 rounded">
+                    <p class="font-medium"><strong>Label:</strong> ${pred.class}</p>
+                    <p class="text-gray-300"><strong>Confidence:</strong> ${(pred.confidence * 100).toFixed(2)}%</p>
+                  </div>
+                `;
+              });
+            } else {
+              resultHTML += `
+                <div class="p-2 bg-gray-800 rounded">
+                  <p class="text-gray-300">No objects detected.</p>
+                </div>
+              `;
+            }
+
+            resultDiv.innerHTML = resultHTML;
+            batchResultsContainer.appendChild(resultDiv);
+          });
+
+          // Scroll to top of results
+          batchResults.scrollIntoView({ behavior: 'smooth' });
+
+        } catch (error) {
+          console.error(error);
+          batchLoading.classList.add("hidden");
+          batchResults.classList.remove("hidden");
+          batchResultsContainer.innerHTML = `
+            <div class="batch-result-item">
+              <p class="text-red-500">An error occurred while analyzing the images.</p>
+            </div>
+          `;
+        }
+      });
+
+      // Close batch modal when clicking outside
+      window.addEventListener("click", (e) => {
+        if (e.target === batchUploadModal) {
+          batchUploadModal.style.display = "none";
+        }
+      });
+
+      // Add these variables with your other modal element variables
+      const captureImageBtn = document.querySelector('.card-dark-red:nth-child(3)');
+      const captureModal = document.getElementById('captureModal');
+      const closeCaptureModal = document.getElementById('closeCaptureModal');
+      closeCaptureModal.addEventListener('click', () => {
+        captureModal.style.display = 'none';
+        // Stop any active camera stream when closing
+        if (currentStream) {
+          currentStream.getTracks().forEach(track => track.stop());
+          currentStream = null;
+        }
+        // Reset the camera UI
+        resetCameraUI();
+      });
+      const cameraFeed = document.getElementById('cameraFeed');
+      const captureBtn = document.getElementById('captureBtn');
+      const retakeBtn = document.getElementById('retakeBtn');
+      const capturedPreviewContainer = document.getElementById('capturedPreviewContainer');
+      const capturedImage = document.getElementById('capturedImage');
+      const analyzeCapturedBtn = document.getElementById('analyzeCapturedBtn');
+      const captureResult = document.getElementById('captureResult');
+      const captureLoading = document.getElementById('captureLoading');
+      const cameraPermission = document.getElementById('cameraPermission');
+      const cameraSelect = document.getElementById('cameraSelect');
+      let currentStream = null;
+
+      // When user clicks the Capture Image card
+      captureImageBtn.addEventListener('click', async () => {
+        captureModal.style.display = 'flex';
+        
+        // Reset UI state
+        resetCameraUI();
+        
+        // Start by requesting camera permission
+        try {
+          // Show requesting permission message
+          cameraPermission.style.display = 'block';
+          cameraPermission.innerHTML = `
+            <div class="text-center">
+              <p class="text-yellow-500 mb-3">
+                <i class="fas fa-camera mr-2"></i>
+                We need access to your camera
+              </p>
+              <button 
+                onclick="requestCameraPermission()"
+                class="bg-blue-500 text-white font-semibold px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+              >
+                Allow Camera Access
+              </button>
+            </div>
+          `;
+        } catch (err) {
+          showError('Failed to initialize camera system');
+        }
+      });
+
+      // Function to request camera permission and list cameras
+      async function requestCameraPermission() {
+        try {
+          // Show loading state
+          cameraPermission.innerHTML = `
+            <div class="text-center">
+              <p class="text-yellow-500 mb-3">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                Requesting camera access...
+              </p>
+            </div>
+          `;
+
+          // Request camera permission
+          const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: true,
+            audio: false
+          });
+          
+          // Stop initial test stream
+          stream.getTracks().forEach(track => track.stop());
+          
+          // Get available cameras
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const videoDevices = devices.filter(device => device.kind === 'videoinput');
+          
+          if (videoDevices.length === 0) {
+            throw new Error('No cameras found on your device');
+          }
+          
+          // Show camera selection
+          cameraPermission.innerHTML = `
+            <div class="text-center">
+              <p class="text-green-500 mb-3">
+                <i class="fas fa-check-circle mr-2"></i>
+                Camera access granted! Please select your camera:
+              </p>
+              <select 
+                id="cameraSelect" 
+                class="bg-gray-700 text-white rounded px-4 py-2 w-full max-w-md mb-3 cursor-pointer border border-gray-600 hover:border-blue-500 transition-colors"
+              >
+                <option value="">Select a camera...</option>
+                ${videoDevices.map((device, index) => `
+                  <option value="${device.deviceId}">
+                    ${device.label || `Camera ${index + 1}`}
+                  </option>
+                `).join('')}
+              </select>
+            </div>
+          `;
+          
+          // Get the newly created select element
+          const cameraSelect = document.getElementById('cameraSelect');
+          
+          // Handle camera selection
+          cameraSelect.addEventListener('change', async (e) => {
+            const selectedDeviceId = e.target.value;
+            if (selectedDeviceId) {
+              await startCamera(selectedDeviceId);
+            }
+          });
+          
+          // If only one camera, select it automatically
+          if (videoDevices.length === 1) {
+            cameraSelect.value = videoDevices[0].deviceId;
+            await startCamera(videoDevices[0].deviceId);
+          }
+          
+        } catch (err) {
+          console.error('Camera permission error:', err);
+          showError(err.message);
+        }
+      }
+
+      // Function to start selected camera
+      async function startCamera(deviceId) {
+        try {
+          // Stop any existing stream
+          if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+          }
+          
+          // Start new stream with selected camera
+          const constraints = {
+            video: {
+              deviceId: { exact: deviceId },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 }
+            },
+            audio: false
+          };
+          
+          currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+          
+          // Show video preview
+          cameraFeed.srcObject = currentStream;
+          cameraFeed.style.display = 'block';
+          await cameraFeed.play();
+          
+          // Show capture button
+          captureBtn.style.display = 'block';
+          captureBtn.disabled = false;
+          
+          // Hide permission message
+          cameraPermission.style.display = 'none';
+          
+        } catch (err) {
+          console.error('Error starting camera:', err);
+          showError('Failed to start camera: ' + err.message);
+        }
+      }
+
+      // Function to show errors
+      function showError(message) {
+        cameraPermission.style.display = 'block';
+        cameraPermission.innerHTML = `
+          <div class="text-center">
+            <p class="text-red-500 mb-3">
+              <i class="fas fa-exclamation-circle mr-2"></i>
+              ${message}
+            </p>
+            <button 
+              onclick="requestCameraPermission()"
+              class="bg-blue-500 text-white font-semibold px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+            >
+              Try Again
+            </button>
+          </div>
+        `;
+      }
+
+      // Function to reset UI
+      function resetCameraUI() {
+        cameraFeed.style.display = 'none';
+        cameraPermission.style.display = 'none';
+        capturedPreviewContainer.classList.add('hidden');
+        captureBtn.style.display = 'none';
+        retakeBtn.classList.add('hidden');
+        analyzeCapturedBtn.classList.add('hidden');
+        captureResult.classList.add('hidden');
+        captureResult.innerHTML = '';
+        window.capturedBlob = null;
+        
+        if (currentStream) {
+          currentStream.getTracks().forEach(track => track.stop());
+          currentStream = null;
+        }
+      }
+
+      // Handle capture button click
+      captureBtn.addEventListener('click', () => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        canvas.width = cameraFeed.videoWidth;
+        canvas.height = cameraFeed.videoHeight;
+        context.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+        
+        // Convert canvas to blob immediately
+        canvas.toBlob((blob) => {
+          window.capturedBlob = blob;
+          
+          // Create preview from blob
+          const previewImage = document.createElement('img');
+          previewImage.src = URL.createObjectURL(blob);
+          previewImage.className = 'rounded-lg border border-gray-200 shadow-sm w-full max-w-2xl mx-auto';
+          previewImage.id = 'capturedPreviewImage';
+          
+          capturedPreviewContainer.classList.remove('hidden');
+          capturedPreviewContainer.innerHTML = '';
+          capturedPreviewContainer.appendChild(previewImage);
+          
+          // Update UI
+          cameraFeed.style.display = 'none';
+          captureBtn.style.display = 'none';
+          retakeBtn.classList.remove('hidden');
+          analyzeCapturedBtn.classList.remove('hidden');
+        }, 'image/jpeg', 0.95);
+      });
+
+      // Analyze captured image
+      analyzeCapturedBtn.addEventListener('click', async () => {
+        if (!window.capturedBlob) {
+          console.error('No image captured');
+          return;
+        }
+
+        // Show loading state
+        captureResult.innerHTML = `
+          <div class="text-center p-4">
+            <i class="fas fa-spinner fa-spin text-2xl text-blue-500 mb-2"></i>
+            <p class="text-gray-300">Analyzing image...</p>
+          </div>
+        `;
+        captureResult.classList.remove('hidden');
+
+        try {
+          // Create FormData and append the blob with a filename
+          const formData = new FormData();
+          formData.append('file', window.capturedBlob, 'captured_image.jpg');
+
+          // Send to server using the same endpoint as upload
+          const response = await fetch('/upload-single-image', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          
+          // Handle the predictions
+          if (result.predictions && result.predictions.length > 0) {
+            // Draw bounding boxes on the preview image
+            const previewImage = document.getElementById('capturedPreviewImage');
+            await drawBoundingBoxes(previewImage, result.predictions);
+
+            // Show results
+            captureResult.innerHTML = `
+              <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                <h3 class="text-lg font-semibold text-white mb-4">Analysis Results</h3>
+                <div class="space-y-4">
+                  ${result.predictions.map((pred, index) => `
+                    <div class="prediction-item bg-gray-700 rounded-lg p-4">
+                      <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-bold text-lg text-white">Result ${index + 1}</h4>
+                        <span class="text-blue-400 font-semibold">
+                          ${(pred.confidence * 100).toFixed(2)}%
+                        </span>
+                      </div>
+                      <div class="text-gray-300">
+                        <p class="font-medium">Label: ${pred.class}</p>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          } else {
+            captureResult.innerHTML = `
+              <div class="bg-gray-800 rounded-lg p-4">
+                <p class="text-gray-300">No objects detected in the image.</p>
+              </div>
+            `;
+          }
+        } catch (error) {
+          console.error('Analysis error:', error);
+          captureResult.innerHTML = `
+            <div class="bg-red-900/50 border-l-4 border-red-500 p-4 rounded">
+              <p class="font-bold text-red-400">Error</p>
+              <p class="text-gray-300">Failed to analyze the image. Please try again.</p>
+              <p class="text-sm mt-2 text-gray-400">Details: ${error.message}</p>
+            </div>
+          `;
+        }
+      });
+
+      // Add retake functionality
+      retakeBtn.addEventListener('click', () => {
+        // Reset UI
+        cameraFeed.style.display = 'block';
+        captureBtn.style.display = 'block';
+        retakeBtn.classList.add('hidden');
+        analyzeCapturedBtn.classList.add('hidden');
+        capturedPreviewContainer.classList.add('hidden');
+        captureResult.classList.add('hidden');
+        window.capturedBlob = null;
+      });
+
+      // Function to draw bounding boxes
+      async function drawBoundingBoxes(image, predictions) {
+        return new Promise((resolve) => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          // Function to do the actual drawing
+          const draw = () => {
+            const maxWidth = 800; // Max width for the preview
+            const scale = Math.min(maxWidth / image.naturalWidth, 1);
+            
+            canvas.width = image.naturalWidth * scale;
+            canvas.height = image.naturalHeight * scale;
+
+            // Draw the image
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            // Draw predictions
+            predictions.forEach(prediction => {
+              const { x, y, width, height, confidence, class: label } = prediction;
+
+              // Scale coordinates
+              const scaledX = x * scale;
+              const scaledY = y * scale;
+              const scaledWidth = width * scale;
+              const scaledHeight = height * scale;
+
+              // Draw bounding box
+              ctx.strokeStyle = '#e91e63';
+              ctx.lineWidth = 2;
+              ctx.strokeRect(
+                scaledX - scaledWidth / 2,
+                scaledY - scaledHeight / 2,
+                scaledWidth,
+                scaledHeight
+              );
+
+              // Draw label background
+              const text = `${label} (${(confidence * 100).toFixed(1)}%)`;
+              ctx.font = '14px Arial';
+              const textMetrics = ctx.measureText(text);
+              const textHeight = 20;
+
+              ctx.fillStyle = 'rgba(233, 30, 99, 0.8)';
+              ctx.fillRect(
+                scaledX - scaledWidth / 2,
+                scaledY - scaledHeight / 2 - textHeight,
+                textMetrics.width + 10,
+                textHeight
+              );
+
+              // Draw label text
+              ctx.fillStyle = 'white';
+              ctx.fillText(
+                text,
+                scaledX - scaledWidth / 2 + 5,
+                scaledY - scaledHeight / 2 - 5
+              );
+            });
+
+            // Replace the original image with the canvas
+            const container = image.parentElement;
+            container.innerHTML = '';
+            canvas.className = image.className;
+            container.appendChild(canvas);
+            resolve();
+          };
+
+          // Check if image is loaded
+          if (image.complete) {
+            draw();
+          } else {
+            image.onload = draw;
+          }
+        });
+      }
     </script>
+    <!-- Add before closing body tag -->
+    {% include 'partials/footer.html' %}
   </body>
 </html>
