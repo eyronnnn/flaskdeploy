@@ -25,6 +25,8 @@
         border: 2px solid #ddd;
         border-radius: 10px;
         margin-top: 20px;
+        width: 100%; /* Ensure canvas adapts to container */
+        height: auto; /* Maintain aspect ratio */
       }
 
       .content {
@@ -250,6 +252,10 @@
       #previewContainer {
         margin-top: 15px;
         text-align: center;
+        width: 100%; /* Ensure it fits within its parent container */
+        max-width: 640px; /* Set a consistent max width */
+        max-height: 640px; /* Restrict the max height */
+        margin: auto; /* Center the container */
       }
 
       #previewImage {
@@ -404,7 +410,7 @@
             <button
               type="button"
               id="analyzeBtn"
-              class="bg-blue-500 text-white font-semibold px-6 py-2 rounded shadow-sm hover:bg-blue-600 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="bg-red-500 text-white font-semibold px-6 py-2 rounded shadow-sm hover:bg-red-600 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled
             >
               Upload for Analysis
@@ -475,60 +481,58 @@
 
       // Draw bounding boxes on the image
       function drawBoundingBoxes(image, predictions) {
-        const maxWidth = 600; // Set max width for the canvas
-        const maxHeight = 400; // Set max height for the canvas
+        const containerWidth =
+          document.getElementById("previewContainer").clientWidth;
+        const containerHeight =
+          document.getElementById("previewContainer").clientHeight;
 
-        // Create a canvas element
         const canvas = document.createElement("canvas");
-
-        // Calculate scale to fit the image within max dimensions
-        const scale = Math.min(
-          maxWidth / image.naturalWidth,
-          maxHeight / image.naturalHeight
-        );
-        const scaledWidth = image.naturalWidth * scale;
-        const scaledHeight = image.naturalHeight * scale;
-
-        canvas.width = scaledWidth;
-        canvas.height = scaledHeight;
+        canvas.width = containerWidth;
+        canvas.height = containerHeight;
 
         const ctx = canvas.getContext("2d");
 
-        // Draw the scaled image
-        ctx.drawImage(image, 0, 0, scaledWidth, scaledHeight);
+        // Scale image to fit within the container
+        const scaleWidth = canvas.width / image.naturalWidth;
+        const scaleHeight = canvas.height / image.naturalHeight;
+        const scale = Math.min(scaleWidth, scaleHeight);
 
-        // Scale predictions to match the resized image
+        const scaledWidth = image.naturalWidth * scale;
+        const scaledHeight = image.naturalHeight * scale;
+        const offsetX = (canvas.width - scaledWidth) / 2; // Center horizontally
+        const offsetY = (canvas.height - scaledHeight) / 2; // Center vertically
+
+        // Draw the scaled image
+        ctx.drawImage(image, offsetX, offsetY, scaledWidth, scaledHeight);
+
+        // Scale predictions to fit the resized image
         predictions.forEach((prediction) => {
           const { x, y, width, height, confidence, class: label } = prediction;
 
-          // Scale coordinates
-          const scaledX = x * scale;
-          const scaledY = y * scale;
+          // Scale bounding box coordinates
+          const scaledX = offsetX + x * scale - (width * scale) / 2;
+          const scaledY = offsetY + y * scale - (height * scale) / 2;
           const scaledWidth = width * scale;
           const scaledHeight = height * scale;
 
           // Draw the bounding box
           ctx.strokeStyle = "red";
           ctx.lineWidth = 2;
-          ctx.strokeRect(
-            scaledX - scaledWidth / 2,
-            scaledY - scaledHeight / 2,
-            scaledWidth,
-            scaledHeight
-          );
+          ctx.strokeRect(scaledX, scaledY, scaledWidth, scaledHeight);
 
           // Add label and confidence score
           ctx.fillStyle = "red";
-          ctx.font = "16px Arial";
+          ctx.font = "14px Arial";
           ctx.fillText(
             `${label} (${(confidence * 100).toFixed(2)}%)`,
-            scaledX - scaledWidth / 2,
-            scaledY - scaledHeight / 2 - 5
+            scaledX,
+            scaledY - 5
           );
         });
 
         // Replace preview container content with the canvas
-        previewContainer.innerHTML = ""; // Clear existing content
+        const previewContainer = document.getElementById("previewContainer");
+        previewContainer.innerHTML = ""; // Clear previous content
         previewContainer.appendChild(canvas);
       }
 

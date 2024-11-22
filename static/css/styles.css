@@ -1,0 +1,31 @@
+@font-face {
+    font-family: 'Dirtyline';
+    src: url('/static/fonts/Dirtyline36DaysOfType2022-Reg.woff2') format('woff2'),
+         url('/static/fonts/Dirtyline36DaysOfType2022-Reg.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'AtypTextBold'; /* Define AtypText Bold font */
+    src: url('/static/fonts/AtypTextTRIAL-Bold.woff2') format('woff2'),
+         url('/static/fonts/AtypTextTRIAL-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Heading Font */
+h1 {
+    font-family: 'Dirtyline', sans-serif;
+}
+
+/* Description Font */
+p {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Example Usage for AtypText */
+.bold-text {
+    font-family: 'AtypTextBold', sans-serif; /* Use AtypText for bold content */
+    font-weight: bold;
+}
